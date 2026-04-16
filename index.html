@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de gestión de hotel</title>
+  <style>
+h1 {
+    text-align: center;
+    font-size: 40px;
+    font-weight: 900;
+    color: #000;
+    letter-spacing: 3px;
+    margin-top: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f7e8e5;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+.main-container {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+
+.form-row {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+
+.card {
+  width: 400px;
+  background: #F4E2DE;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0px 187px 75px rgba(0, 0, 0, 0.01),
+              0px 105px 63px rgba(0, 0, 0, 0.05),
+              0px 47px 47px rgba(0, 0, 0, 0.09),
+              0px 12px 26px rgba(0, 0, 0, 0.1),
+              0px 0px 0px rgba(0, 0, 0, 0.1);
+}
+
+.card .title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #000;
+  border-bottom: 1px solid #E5C7C5;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.input_field, select {
+  width: 100%;
+  height: 36px;
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 5px;
+  outline: none;
+  border: 1px solid #E5C7C5;
+  background-color: #F4E2DE;
+  transition: all 0.3s ease;
+}
+
+.input_field:focus, select:focus {
+  border: 1px solid transparent;
+  box-shadow: 0px 0px 0px 2px #F3D2C9;
+}
+
+.btn {
+  width: 100%;
+  background: #ECC2C0;
+  border: none;
+  padding: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 7px;
+  margin-top: 10px;
+}
+
+.btn:hover {
+  background: #e6b0ac;
+}
+
+table {
+  width: 90%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  border: 1px solid #E5C7C5;
+  padding: 8px;
+  text-align: center;
+}
+
+th {
+  background-color: #F3D2C9;
+}
+
+button {
+  padding: 4px 8px;
+}
+  </style>
+</head>
+<body>
+
+<div class="main-container">
+    <h1>Sistema de gestión de hotel</h1>
+
+  <div class="form-row">
+
+    <form id="formHotel" class="card">
+      <div class="title">Registro de Huésped</div>
+
+      <input type="text" id="nombre" class="input_field" placeholder="Nombre del huésped">
+      <input type="number" id="dni" class="input_field" placeholder="DNI">
+
+      <select id="habitacion" class="input_field">
+        <option value="">Habitación...</option>
+        <option value="Simple">Simple - $25.000</option>
+        <option value="Doble">Doble - $38.000</option>
+        <option value="Matrimonial">Matrimonial - $50.000</option>
+        <option value="Suite">Suite - $65.000</option>
+      </select>
+
+      <select id="comida" class="input_field">
+        <option value="">Comida...</option>
+        <option value="Desayuno">Desayuno - $5.000</option>
+        <option value="Media pensión">Media pensión - $14.000</option>
+        <option value="Completa">Pensión completa - $22.000</option>
+      </select>
+
+      <select id="paquete" class="input_field">
+        <option value="">Paquete...</option>
+        <option value="Base">Base sin descuento</option>
+        <option value="Finde">Finde 8% desc</option>
+        <option value="Semana">Semana 12% desc</option>
+      </select>
+
+      <input type="date" id="entrada" class="input_field">
+      <input type="date" id="salida" class="input_field">
+
+      <button id="btnHuesped" type="button" class="btn" onclick="registrar()">Registrar huésped</button>
+    </form>
+
+
+
+    <form class="card">
+      <div class="title">Registro de Empleado</div>
+
+      <input type="text" id="trabajador" class="input_field" placeholder="Nombre del empleado">
+      <input type="number" id="dnitrab" class="input_field" placeholder="DNI">
+
+      <input type="datetime-local" id="turno" class="input_field">
+      <input type="datetime-local" id="turnoout" class="input_field">
+
+      <button id="btnEmpleado" type="button" class="btn" onclick="registro_turnos()">Registrar turno</button>
+    </form>
+
+  </div>
+
+
+  <h2>Lista de Huéspedes</h2>
+  <table id="tablaHuespedes">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>DNI</th>
+        <th>Habitación</th>
+        <th>Comida</th>
+        <th>Paquete</th>
+        <th>Noches</th>
+        <th>Total</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <h2>Lista de Empleados</h2>
+  <table id="tablaEmpleados">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Nombre</th>
+        <th>DNI</th>
+        <th>Ingreso</th>
+        <th>Salida</th>
+        <th>Horas</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+</div>
+
+<script>
+var registro_huespedes = JSON.parse(localStorage.getItem("registro_huespedes")) || []
+        var registro_empleados = JSON.parse(localStorage.getItem("registro_empleados")) || []
+
+        function guardarHuespedes() {
+            localStorage.setItem("registro_huespedes", JSON.stringify(registro_huespedes))
+        }
+        function guardarEmpleados() {
+            localStorage.setItem("registro_empleados", JSON.stringify(registro_empleados))
+        }
+
+    function registrar() {
+        var nombre = document.getElementById("nombre").value;
+        var dni = document.getElementById("dni").value;
+        var fechaEntrada = document.getElementById("entrada").value;
+        var fechaSalida = document.getElementById("salida").value;
+        var habitacion = document.getElementById("habitacion").value;
+        var comida = document.getElementById("comida").value;
+        var paquete = document.getElementById("paquete").value;
+
+    if (!nombre || !dni || !fechaEntrada || !fechaSalida || !habitacion || !paquete) {
+        alert("Error. Campos vacios");
+        return;
+    }
+
+        var entrada = new Date(fechaEntrada);
+        var salida = new Date(fechaSalida);
+        var diferenciaMs = salida - entrada;
+        var diferenciaDias = diferenciaMs / (1000 * 60 * 60 * 24);
+
+    if (diferenciaDias === 7) {
+        alert("Las fechas se diferencian en 7 días. Puede elegir un paquete especial.");
+    } else if (diferenciaDias < 0) {
+        alert("La fecha de salida no puede ser anterior a la de entrada.");
+        return;
+    }
+
+        var precioHab = 0;
+    if (habitacion === "Simple") precioHab = 25000;
+        else if (habitacion === "Doble") precioHab = 38000;
+        else if (habitacion === "Matrimonial") precioHab = 50000;
+        else if (habitacion === "Suite") precioHab = 65000;
+
+        var precioCom = 0;
+    if (comida === "Desayuno") precioCom = 5000;
+        else if (comida === "Media pensión") precioCom = 14000;
+        else if (comida === "Completa") precioCom = 22000;
+
+        var subtotal = (precioHab + precioCom) * diferenciaDias;
+        var descuento = 0;
+    if (paquete === "Finde") descuento = 0.08;
+    else if (paquete === "Semana") descuento = 0.12;
+
+        var total = subtotal - (subtotal * descuento);
+
+        var nuevo_huesped = {
+            nombre,
+            dni,
+            habitacion,
+            comida,
+            paquete,
+            entrada: fechaEntrada,
+            salida: fechaSalida,
+            noches: diferenciaDias,
+            total
+        };
+
+        registro_huespedes.push(nuevo_huesped);
+        guardarHuespedes()
+        mostrar();
+        document.getElementById("formHotel").reset();
+    }
+
+    function mostrar() {
+        var tbody = document.querySelector("#tablaHuespedes tbody");
+        tbody.innerHTML = "";
+    if (registro_huespedes.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='9' align='center'>No hay huéspedes registrados</td></tr>";
+        return;
+        }
+
+    registro_huespedes.forEach((inv, index) => {
+        var row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${inv.nombre}</td>
+            <td>${inv.dni}</td>
+            <td>${inv.habitacion}</td>
+            <td>${inv.comida}</td>
+            <td>${inv.paquete}</td>
+            <td>${inv.noches}</td>
+            <td>$${inv.total.toLocaleString()}</td>
+            <td><button onclick="editarHuesped(${index})">editar</button>
+            <button onclick="eliminar(${index})">eliminar</button>
+            </td>`;
+        tbody.appendChild(row);
+        });
+    }
+
+    function eliminar(index) {
+    if (confirm("¿Seguro que desea eliminar este huésped?")) {
+        registro_huespedes.splice(index, 1);
+        guardarHuespedes();
+        mostrar();
+        }
+    }
+
+    function editarHuesped(index) {
+        var huespedEdit = registro_huespedes[index]
+
+        document.getElementById("nombre").value = huespedEdit.nombre
+        document.getElementById("dni").value = huespedEdit.dni
+        document.getElementById("habitacion").value = huespedEdit.habitacion
+        document.getElementById("comida").value = huespedEdit.comida
+        document.getElementById("paquete").value = huespedEdit.paquete
+        document.getElementById("entrada").value = huespedEdit.entrada;
+        document.getElementById("salida").value = huespedEdit.salida;
+        registro_huespedes.splice(index, 1)
+        guardarHuespedes()
+        mostrar()
+    }
+
+
+    function registro_turnos() {
+        var nombre = document.getElementById("trabajador").value;
+        var dni = document.getElementById("dnitrab").value;
+        var ingreso = document.getElementById("turno").value;
+        var salida = document.getElementById("turnoout").value;
+
+    if (!nombre || !dni || !ingreso || !salida) {
+        alert("Error. Campos vacíos en registro de empleados");
+        return;
+    }
+
+        var entrada = new Date(ingreso);
+        var salidaTurno = new Date(salida);
+        var diferenciaMs = salidaTurno - entrada;
+        var horas = diferenciaMs / (1000 * 60 * 60);
+
+    if (horas < 0) {
+        alert("La hora de salida no puede ser anterior a la de ingreso.");
+        return;
+    }
+
+        var nuevo_empleado = {
+            nombre,
+            dni,
+            ingreso,
+            salida,
+            horas: horas.toFixed(2)
+        };
+
+    registro_empleados.push(nuevo_empleado);
+    guardarEmpleados()
+    mostrarEmpleados();
+
+    document.getElementById("trabajador").value = "";
+    document.getElementById("dnitrab").value = "";
+    document.getElementById("turno").value = "";
+    document.getElementById("turnoout").value = "";
+    }
+
+    function mostrarEmpleados() {
+        var tbody = document.querySelector("#tablaEmpleados tbody");
+        tbody.innerHTML = "";
+    if (registro_empleados.length === 0) {
+      tbody.innerHTML = "<tr><td colspan='9' align='center'>No hay empleados registrados</td></tr>";
+      return;
+    }
+
+    registro_empleados.forEach((emp, index) => {
+      var row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${emp.nombre}</td>
+        <td>${emp.dni}</td>
+        <td>${emp.ingreso.replace("T"," ")}hs</td>
+        <td>${emp.salida.replace("T", " ")}hs</td>
+        <td>${emp.horas}</td>
+        <td><button onclick="editarEmpleado(${index})">editar</button>
+        <button onclick="eliminarEmpleado(${index})">eliminar</button>
+        </td>`;
+      tbody.appendChild(row);
+        });
+    }
+
+    function eliminarEmpleado(index) {
+    if (confirm("¿Seguro que desea eliminar este empleado?")) {
+        registro_empleados.splice(index, 1);
+        guardarEmpleados();
+        mostrarEmpleados();
+        }
+    }
+
+    function editarEmpleado(index) {
+        var empleadoEdit = registro_empleados[index]
+
+        document.getElementById("trabajador").value = empleadoEdit.nombre
+        document.getElementById("dnitrab").value = empleadoEdit.dni
+        document.getElementById("turno").value = empleadoEdit.ingreso
+        document.getElementById("turnoout").value = empleadoEdit.salida
+
+        registro_empleados.splice(index, 1)
+        guardarEmpleados()
+        mostrarEmpleados()
+    }
+
+    window.onload = function () {
+        mostrar()
+        mostrarEmpleados()
+    }
+</script>
+</body>
+</html>
