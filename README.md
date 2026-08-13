@@ -88,3 +88,54 @@ Las siguientes reglas deben aplicarse estrictamente a nivel de validación en el
 
 1. **Obligatoriedad de datos:** Ningún campo puede estar vacío al momento de realizar un registro.
 2. **Coherencia temporal:** La hora de salida no puede ser anterior a la hora de ingreso (Aplica tanto para el registro de estadía de huéspedes como para los turnos de empleados).
+
+
+
+estructura para el proyecto actualizando
+
+hotel/
+│
+├── .gitignore
+├── README.md
+│
+├── backend/
+│   ├── .env.example
+│   ├── .gitkeep
+│   ├── package.json
+│   ├── prisma/
+│   │   └── schema.prisma         # Esquema de base de datos MySQL
+│   └── src/
+│       ├── app.js                # Punto de entrada Express
+│       ├── config/               # Configuración de Prisma/DB
+│       │   └── db.js
+│       ├── controllers/          # Lógica para auth, huéspedes, habitaciones y precios
+│       │   ├── auth.controller.js
+│       │   ├── huesped.controller.js
+│       │   ├── habitacion.controller.js
+│       │   └── precio.controller.js
+│       ├── middlewares/          # JWT y control de roles (Admin/User)
+│       │   ├── auth.middleware.js
+│       │   └── role.middleware.js
+│       ├── routes/               # Rutas expuestas de la API
+│       │   ├── auth.routes.js
+│       │   ├── huesped.routes.js
+│       │   ├── habitacion.routes.js
+│       │   └── precio.routes.js
+│       └── services/             # Reglas de negocio y cálculo de costos/descuentos
+│           ├── huesped.service.js
+│           └── precio.service.js
+│
+└── frontend/
+    ├── css/                      # Estilos css
+    │   └── styles.css
+    ├── js/                       # Consumo de la API Backend
+    │   ├── api.js                # Instancia base de fetch/axios
+    │   ├── auth.js               # Manejo de login/logout y JWT
+    │   ├── huespedes.js          # Lógica del CRUD de huéspedes
+    │   └── navegacion.js         # Control de vistas/pestañas por rol
+    ├── pages/                    # Subpáginas modulares
+    │   ├── login.html
+    │   ├── huespedes.html
+    │   ├── habitaciones.html
+    │   └── precios.html
+    └── index.html                # Vista principal 
