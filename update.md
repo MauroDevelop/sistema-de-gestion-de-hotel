@@ -1,4 +1,4 @@
-//archivo precio.service.js
+## archivo precio.service.js
 
 bloque 1 de patron strategy. 
 
@@ -103,3 +103,109 @@ Retorna un objeto con el desglose contable completo de la operación.
 
 **Number(totalFinal.toFixed(2))**
 Trunca y redondea a exactamente dos decimales (estándar para manejo de divisas monetarias) y lo convierte nuevamente a tipo numérico para guardarlo directamente en la base de datos o enviarlo en la respuesta JSON.
+
+
+==========
+## archivo huesped.service.js
+
+Bloque 1: Declaración de Clase y Desestructuración
+
+**export class HuespedService {}**
+Clase contenedora de las reglas de validación y limpieza de huéspedes.
+
+**static validarYFormatear(data) {}**
+Recibe el objeto con todos los datos que vienen del formulario de registro.
+
+**const { nombre, apellido, ... } = data;**
+Desestructura todos los campos recibidos estableciendo 'DNI' por defecto si no se indica el tipo de documento.
+
+-------
+
+Bloque 2: Verificación de Campos Obligatorios
+**const camposObligatorios = { nombre, apellido, nro_documento, ... };**
+Reúne los 10 campos que no pueden faltar para registrar un huésped titular.
+
+**for (const [campo, valor] of Object.entries(camposObligatorios))**
+Itera campo por campo. Si algún valor viene nulo o con texto en blanco, lanza `throw new Error(...)` indicando exactamente cuál falta.
+
+-------
+
+Bloque 3: Validación de Formato de Correo y Edad (+18)
+
+**const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;**
+Patrón de expresión regular para verificar que el correo tenga formato válido (`usuario@dominio.com`).
+
+**const fechaNac = new Date(fecha_nacimiento);**
+Convierte la fecha de nacimiento a Date. Si no es válida, interrumpe con error.
+
+**const edad = new Date().getFullYear() - fechaNac.getFullYear();**
+Calcula la edad. Si es menor de 18 años, frena el registro indicando que el titular debe ser mayor de edad.
+
+------
+
+Bloque 4: Limpieza de Espacios y Normalización
+
+**return { nombre: nombre.trim(), correo: correo.trim().toLowerCase(), ... };**
+Retorna los datos limpios de espacios en los extremos y convierte el correo a minúsculas para evitar duplicados en la base de datos.
+
+
+========
+
+## archivo habitacion.service.js
+
+Bloque 1: Listas Válidas y Validación de Habitación
+
+**static TIPOS_VALIDOS = ['Simple', 'Doble', 'Matrimonial', 'Suite'];**
+Arreglos estáticos con las categorías y estados permitidos en el hotel.
+
+**static validarHabitacion({ nro_habitacion, id_tipo, tipo_nombre, piso, precio_noche })**
+Valida que el número de habitación y precio sean enteros positivos y que el tipo de habitación exista.
+
+------
+
+Bloque 2: Normalización de Comodidades
+**static filtrarComodidadesIds(amenityIds)**
+Filtra un arreglo de IDs recibidos desde checkboxes. Convierte strings a enteros con `parseInt()`, elimina valores nulos o negativos, y usa `[...new Set(...)]` para eliminar duplicados.
+
+======
+
+## archivo auth.service.js
+
+Bloque 1: Autenticación de 3 Factores
+
+
+**static async login(correo, dni, password, ip = null)**
+Verifica los 3 datos exigidos: Correo electrónico, número de DNI y Contraseña.
+
+**const user = await UserRepository.findByCredentials(...)**
+Consulta la base de datos buscando un usuario activo con ese correo y DNI. Si no existe, lanza un mensaje de credenciales inválidas.
+
+---
+
+Bloque 2: Verificación Bcrypt y Firma JWT
+
+
+**const isMatch = await bcrypt.compare(password, user.password_hash);**
+Compara la contraseña en texto plano introducida contra el hash Bcrypt encriptado en la base de datos.
+
+**const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '12h' });**
+Genera un token cifrado firmado con la clave secreta que expira en 12 horas.
+
+**await UserRepository.logAction(user.id_usuario, 'Inicio de sesión exitoso', ip);**
+Registra el evento de inicio de sesión con la IP del usuario en los logs del sistema.
+
+=========
+
+## archivo reserva.service.js
+
+Bloque 1: Orquestación del Check-In
+
+**static async registrarCheckIn(datosCheckIn, usuarioId)**
+Valida el huésped con `HuespedService`, verifica que la habitación exista y esté en estado `LIBRE`, calcula la tarifa con `PrecioService` y ejecuta la transacción en base de datos.
+
+---
+
+Bloque 2: Procesamiento del Check-Out
+
+**static async procesarCheckOut(idReserva, usuarioId)**
+Llama a `ReservaRepository.finalizarCheckOutTransaccional` para calcular el tiempo real transcurrido, efectuar la liquidación cobrada y liberar la habitación.
