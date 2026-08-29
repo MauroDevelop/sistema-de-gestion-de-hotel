@@ -1,60 +1,75 @@
-// repositorio de acceso a datos para la tabla de usuarios y logs del sistema
 import { pool } from '../config/db.js';
 
 export class UserRepository {
-    // busca un usuario activo por correo y DNI relacionando la tabla de roles
-    static async findByCredentials(correo, dni) {
+    // Busca un usuario por DNI y Contraseña para login
+    static async findByDniAndPass(dni, pass) {
         const [rows] = await pool.execute(
-            `SELECT u.id_usuario, u.nombre, u.dni, u.correo, u.password_hash, u.activo, r.nombre AS rol 
-             FROM usuarios u 
-             JOIN roles r ON u.id_rol = r.id_rol 
-             WHERE u.correo = ? AND u.dni = ? AND u.activo = TRUE`,
-            [correo, dni]
+            `SELECT u.id_usuario, u.dni, u.contraseña AS pass, u.nombre, c.tipo_cargo AS rol
+             FROM usuario u
+             JOIN cargos c ON u.cargo = c.id_cargo
+             WHERE u.dni = ? AND u.contraseña = ?`,
+            [dni, pass]
         );
         return rows[0] || null;
     }
 
-    // obtiene todos los usuarios ordenados del mas reciente al mas antiguo
+    // Obtiene todos los usuarios con su rol
     static async getAll() {
         const [rows] = await pool.execute(
-            `SELECT u.id_usuario, u.nombre, u.dni, u.correo, u.activo, r.nombre AS rol, u.created_at
-             FROM usuarios u
-             JOIN roles r ON u.id_rol = r.id_rol
-             ORDER BY u.id_usuario DESC`
+            `SELECT u.dni, u.contraseña AS pass, u.nombre, c.tipo_cargo AS rol
+             FROM usuario u
+             JOIN cargos c ON u.cargo = c.id_cargo
+             ORDER BY u.id_usuario ASC`
         );
         return rows;
     }
 
-    // inserta un nuevo usuario en la base de datos con contraseña ya encriptada
-    static async create({ nombre, dni, correo, password_hash, id_rol }) {
+    // Busca un usuario por DNI
+    static async findByDni(dni) {
+        const [rows] = await pool.execute(
+            `SELECT u.id_usuario, u.dni, u.contraseña AS pass, u.nombre, c.tipo_cargo AS rol
+             FROM usuario u
+             JOIN cargos c ON u.cargo = c.id_cargo
+             WHERE u.dni = ?`,
+            [dni]
+        );
+        return rows[0] || null;
+    }
+
+    // Crea un nuevo usuario
+    static async create({ nombre, dni, pass, rol }) {
+        // Obtiene id_cargo según tipo_cargo (ADMIN o USER)
+        const [cargos] = await pool.execute(`SELECT id_cargo FROM cargos WHERE tipo_cargo = ?`, [rol || 'USER']);
+        const cargoId = cargos.length > 0 ? cargos[0].id_cargo : 2;
+
+        const partesNombre = (nombre || '').split(' ');
+        const nom = partesNombre[0] || nombre;
+        const ape = partesNombre.slice(1).join(' ') || 'Sistema';
+        const correo = `${dni}@hotel.com`;
+
         const [result] = await pool.execute(
-            `INSERT INTO usuarios (nombre, dni, correo, password_hash, id_rol) 
-             VALUES (?, ?, ?, ?, ?)`,
-            [nombre, dni, correo, password_hash, id_rol]
+            `INSERT INTO usuario (nombre, apellido, contraseña, correo, dni, cargo)
+             VALUES (?, ?, ?, ?, ?, ?)`,
+            [nom, ape, pass, correo, dni, cargoId]
         );
         return result.insertId;
     }
 
-    // inserta una nueva entrada en los logs de auditoria del sistema
-    static async logAction(id_usuario, accion, ip_origen = null) {
-        await pool.execute(
-            `INSERT INTO logs_sistema (id_usuario, accion, ip_origen) VALUES (?, ?, ?)`,
-            [id_usuario, accion, ip_origen]
-        );
-    }
+    // Actualiza un usuario existente por DNI
+    static async updateByDni(dni, { nombre, pass, rol }) {
+        const [cargos] = await pool.execute(`SELECT id_cargo FROM cargos WHERE tipo_cargo = ?`, [rol || 'USER']);
+        const cargoId = cargos.length > 0 ? cargos[0].id_cargo : 2;
 
-    // consulta los ultimos N logs de auditoria uniendo con la tabla de usuarios
-    static async getLogs(limit = 50) {
-        const [rows] = await pool.execute(
-            `SELECT l.id_log, l.accion, l.ip_origen, l.created_at, 
-                    COALESCE(u.nombre, 'Sistema') AS usuario,
-                    COALESCE(u.dni, '-') AS dni
-             FROM logs_sistema l
-             LEFT JOIN usuarios u ON l.id_usuario = u.id_usuario
-             ORDER BY l.id_log DESC
-             LIMIT ?`,
-            [Number(limit)]
+        const partesNombre = (nombre || '').split(' ');
+        const nom = partesNombre[0] || nombre;
+        const ape = partesNombre.slice(1).join(' ') || 'Sistema';
+
+        const [result] = await pool.execute(
+            `UPDATE usuario
+             SET nombre = ?, apellido = ?, contraseña = ?, cargo = ?
+             WHERE dni = ?`,
+            [nom, ape, pass, cargoId, dni]
         );
-        return rows;
+        return result.affectedRows > 0;
     }
 }

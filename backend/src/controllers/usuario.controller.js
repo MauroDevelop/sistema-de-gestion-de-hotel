@@ -1,50 +1,77 @@
-// controlador para gestion de usuarios y logs del sistema
-import bcrypt from 'bcryptjs';
 import { UserRepository } from '../repositories/user.repository.js';
+import { LogRepository } from '../repositories/log.repository.js';
 
 export class UsuarioController {
-    // GET /api/usuarios - obtiene todo el personal registrado (Admin solo)
+    // GET /api/usuarios
     static async getAll(req, res) {
         try {
             const data = await UserRepository.getAll();
-            return res.status(200).json({ success: true, data });
+            return res.status(200).json(data);
         } catch (error) {
-            return res.status(500).json({ success: false, message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     }
 
-    // GET /api/usuarios/logs - obtiene los logs de auditoria del sistema
+    // GET /api/logs
     static async getLogs(req, res) {
         try {
             const limit = req.query.limit || 50;
-            const data = await UserRepository.getLogs(limit);
-            return res.status(200).json({ success: true, data });
+            const data = await LogRepository.getAll(limit);
+            return res.status(200).json(data);
         } catch (error) {
-            return res.status(500).json({ success: false, message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     }
 
-    // POST /api/usuarios - crea un nuevo usuario del sistema (Admin solo)
+    // POST /api/usuarios
     static async create(req, res) {
         try {
-            const { nombre, dni, correo, password, id_rol } = req.body;
-            if (!nombre || !dni || !correo || !password || !id_rol) {
-                return res.status(400).json({ success: false, message: 'Todos los campos son obligatorios.' });
+            const { nombre, dni, pass, rol } = req.body;
+            if (!nombre || !dni || !pass) {
+                return res.status(400).json({ message: 'Nombre, DNI y contraseña son obligatorios.' });
             }
 
-            // genera la sal y el hash de la contraseña usando bcryptjs
-            const salt = await bcrypt.genSalt(10);
-            const password_hash = await bcrypt.hash(password, salt);
+            const existing = await UserRepository.findByDni(dni);
+            if (existing) {
+                return res.status(400).json({ message: 'El usuario ya está registrado' });
+            }
 
-            // crea el usuario en la base de datos
-            await UserRepository.create({ nombre, dni, correo, password_hash, id_rol });
+            await UserRepository.create({ nombre, dni, pass, rol: rol || 'USER' });
+            await LogRepository.create('Admin', `Creación de usuario: ${nombre} (${dni})`);
 
-            // registra la operacion en logs de auditoria
-            await UserRepository.logAction(req.user.id, `Creación de usuario: ${nombre} (${dni})`, req.ip);
-
-            return res.status(201).json({ success: true, message: 'Usuario creado exitosamente' });
+            return res.status(201).json({ nombre, dni, pass, rol: rol || 'USER' });
         } catch (error) {
-            return res.status(400).json({ success: false, message: error.message });
+            return res.status(400).json({ message: error.message });
+        }
+    }
+
+    // PUT /api/usuarios/:dni
+    static async update(req, res) {
+        try {
+            const dni = req.params.dni;
+            const { nombre, pass, rol } = req.body;
+
+            const existing = await UserRepository.findByDni(dni);
+            if (!existing) {
+                return res.status(404).json({ message: 'El usuario no existe' });
+            }
+
+            await UserRepository.updateByDni(dni, {
+                nombre: nombre || existing.nombre,
+                pass: pass || existing.pass,
+                rol: rol || existing.rol
+            });
+
+            await LogRepository.create('Admin', `Actualización de usuario: ${nombre || existing.nombre} (${dni})`);
+
+            return res.status(200).json({
+                nombre: nombre || existing.nombre,
+                dni,
+                pass: pass || existing.pass,
+                rol: rol || existing.rol
+            });
+        } catch (error) {
+            return res.status(400).json({ message: error.message });
         }
     }
 }

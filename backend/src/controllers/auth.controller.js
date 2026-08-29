@@ -1,21 +1,30 @@
-// controlador de endpoints de autenticacion
-import { AuthService } from '../services/auth.service.js';
+import { UserRepository } from '../repositories/user.repository.js';
+import { LogRepository } from '../repositories/log.repository.js';
 
 export class AuthController {
-    // atiende la ruta POST /api/auth/login
+    // POST /api/login
     static async login(req, res) {
         try {
-            // desestructura credenciales del cuerpo de la peticion HTTP
-            const { correo, dni, password } = req.body;
-            // obtiene la IP del cliente para registrar en logs de auditoria
-            const ip = req.ip || req.connection.remoteAddress;
-            // invoca el servicio de autenticacion
-            const result = await AuthService.login(correo, dni, password, ip);
-            // retorna respuesta exitosa 200 con el token y datos del usuario
-            return res.status(200).json({ success: true, data: result });
+            const { dni, pass } = req.body;
+            if (!dni || !pass) {
+                return res.status(400).json({ message: 'DNI y contraseña son requeridos' });
+            }
+
+            const user = await UserRepository.findByDniAndPass(dni, pass);
+            if (!user) {
+                return res.status(401).json({ message: 'Credenciales inválidas' });
+            }
+
+            await LogRepository.create(user.nombre, `Inicio de sesión exitoso`);
+            
+            return res.status(200).json({
+                dni: user.dni,
+                pass: user.pass,
+                nombre: user.nombre,
+                rol: user.rol
+            });
         } catch (error) {
-            // si hay credenciales invalidas u otro error, retorna estado 401
-            return res.status(401).json({ success: false, message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     }
 }

@@ -1,92 +1,68 @@
-// controlador de endpoints para habitaciones y comodidades
 import { RoomRepository } from '../repositories/room.repository.js';
-import { HabitacionService } from '../services/habitacion.service.js';
-import { UserRepository } from '../repositories/user.repository.js';
+import { LogRepository } from '../repositories/log.repository.js';
 
 export class HabitacionController {
-    // GET /api/habitaciones - obtiene todas las habitaciones filtradas
+    // GET /api/habitaciones
     static async getAll(req, res) {
         try {
-            const data = await RoomRepository.getAll(req.query);
-            return res.status(200).json({ success: true, data });
+            const data = await RoomRepository.getAll();
+            return res.status(200).json(data);
         } catch (error) {
-            return res.status(500).json({ success: false, message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     }
 
-    // GET /api/habitaciones/comodidades - obtiene el catalogo de comodidades
-    static async getComodidades(req, res) {
-        try {
-            const data = await RoomRepository.getCatalogoComodidades();
-            return res.status(200).json({ success: true, data });
-        } catch (error) {
-            return res.status(500).json({ success: false, message: error.message });
-        }
-    }
-
-    // funcion auxiliar para convertir el nombre de comodidad en un codigo slug sin tildes
-    static fontEncodingSlug(str) {
-        return str.toUpperCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^A-Z0-9]/g, "_");
-    }
-
-    // POST /api/habitaciones/comodidades - registra una nueva comodidad en el catalogo
-    static async createComodidad(req, res) {
-        try {
-            const { nombre, categoria, precio_extra } = req.body;
-            if (!nombre || !categoria) {
-                return res.status(400).json({ success: false, message: 'El nombre y la categoría de la comodidad son obligatorios.' });
-            }
-
-            const codigo = HabitacionController.fontEncodingSlug(nombre);
-            const idComodidad = await RoomRepository.createComodidad({
-                codigo,
-                nombre: nombre.trim(),
-                categoria,
-                precio_extra: Number(precio_extra) || 0
-            });
-
-            // registra la accion en logs de auditoria
-            await UserRepository.logAction(req.user.id, `Creación de Comodidad: ${nombre} (${categoria})`, req.ip);
-            return res.status(201).json({ success: true, message: 'Comodidad creada con éxito', data: { id_comodidad: idComodidad } });
-        } catch (error) {
-            return res.status(400).json({ success: false, message: error.message });
-        }
-    }
-
-    // POST /api/habitaciones - crea una nueva habitacion con sus comodidades
+    // POST /api/habitaciones
     static async create(req, res) {
         try {
-            const datosValidados = HabitacionService.validarHabitacion(req.body);
-            const amenities = HabitacionService.filtrarComodidadesIds(req.body.comodidades);
+            const { id, tipo, precio, caracteristicas } = req.body;
+            
+            if (!tipo || !precio) {
+                return res.status(400).json({ message: 'Tipo y precio son obligatorios.' });
+            }
 
-            await RoomRepository.createRoomWithAmenities({
-                ...datosValidados,
-                tipo_nombre: req.body.tipo_nombre
-            }, amenities);
+            const existing = id ? await RoomRepository.findById(id) : null;
+            if (existing) {
+                return res.status(400).json({ message: 'El ID de habitación ya existe' });
+            }
 
-            // registra la operacion en logs de auditoria
-            await UserRepository.logAction(req.user.id, `Creación de Habitación #${datosValidados.nro_habitacion}`, req.ip);
+            // Genera ID si no viene especificado
+            let newId = id;
+            if (!newId) {
+                const all = await RoomRepository.getAll();
+                const maxId = all.reduce((max, h) => (h.id > max ? h.id : max), 100);
+                newId = maxId + 1;
+            }
 
-            return res.status(201).json({ success: true, message: 'Habitación creada con éxito' });
+            const created = await RoomRepository.create({
+                id: newId,
+                tipo,
+                precio: Number(precio),
+                caracteristicas: caracteristicas || []
+            });
+
+            await LogRepository.create('Admin', `Creación de habitación #${created.id}`);
+
+            return res.status(201).json(created);
         } catch (error) {
-            return res.status(400).json({ success: false, message: error.message });
+            return res.status(400).json({ message: error.message });
         }
     }
 
-    // DELETE /api/habitaciones/:nro - elimina una habitacion libre
+    // DELETE /api/habitaciones/:id
     static async delete(req, res) {
         try {
-            const nro = parseInt(req.params.nro);
-            const deleted = await RoomRepository.deleteRoom(nro);
+            const id = parseInt(req.params.id);
+            const deleted = await RoomRepository.deleteById(id);
 
             if (!deleted) {
-                return res.status(400).json({ success: false, message: 'No se puede eliminar la habitación (no existe o está ocupada).' });
+                return res.status(400).json({ message: 'No se puede eliminar la habitación (no existe o está ocupada).' });
             }
 
-            await UserRepository.logAction(req.user.id, `Eliminación de Habitación #${nro}`, req.ip);
-            return res.status(200).json({ success: true, message: 'Habitación eliminada correctamente' });
+            await LogRepository.create('Admin', `Eliminación de habitación #${id}`);
+            return res.status(200).json({ message: 'Habitación eliminada correctamente' });
         } catch (error) {
-            return res.status(500).json({ success: false, message: error.message });
+            return res.status(500).json({ message: error.message });
         }
     }
 }

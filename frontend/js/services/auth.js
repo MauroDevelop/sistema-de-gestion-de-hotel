@@ -2,12 +2,18 @@ import { api } from './api.js';
 
 export const auth = {
     login: async (dni, pass) => {
-        const user = await api.login(dni, pass);
-        if (user) {
-            localStorage.setItem('hotel_token', btoa(JSON.stringify(user)));
-            return true;
+        try {
+            const user = await api.login(dni, pass);
+            if (user) {
+                // Usamos encodeURIComponent para evitar errores con tildes y caracteres UTF-8 en btoa
+                localStorage.setItem('hotel_token', encodeURIComponent(JSON.stringify(user)));
+                return true;
+            }
+            return false;
+        } catch (e) {
+            console.error('Error durante la autenticación:', e);
+            return false;
         }
-        return false;
     },
 
     logout: () => {
@@ -26,6 +32,14 @@ export const auth = {
     getUser: () => {
         const token = localStorage.getItem('hotel_token');
         if (!token) return null;
-        try { return JSON.parse(atob(token)); } catch(e) { return null; }
+        try {
+            return JSON.parse(decodeURIComponent(token));
+        } catch(e) {
+            try {
+                return JSON.parse(atob(token));
+            } catch (err) {
+                return null;
+            }
+        }
     }
 };

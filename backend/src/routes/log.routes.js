@@ -3,8 +3,6 @@ import { UsuarioController } from '../controllers/usuario.controller.js';
 
 const router = Router();
 
-router.get('/', UsuarioController.getAll);
-router.post('/', UsuarioController.create);
-router.put('/:dni', UsuarioController.update);
+router.get('/', UsuarioController.getLogs);
 
 export default router;

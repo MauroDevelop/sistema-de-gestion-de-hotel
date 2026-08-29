@@ -209,3 +209,9 @@ Bloque 2: Procesamiento del Check-Out
 
 **static async procesarCheckOut(idReserva, usuarioId)**
 Llama a `ReservaRepository.finalizarCheckOutTransaccional` para calcular el tiempo real transcurrido, efectuar la liquidación cobrada y liberar la habitación.
+
+
+## para que funcione el proyecto
+1. abrir la carpeta backend en la terminal.
+2. ejecutar npm install
+3. ejecutar npm run dev

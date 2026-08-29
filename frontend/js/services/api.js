@@ -1,70 +1,109 @@
-import { db } from '../data/db.js';
+const BASE_URL = 'http://localhost:3000/api';
 
 export const api = {
-    // BACKEND: Petición a la base de datos para verificar las credenciales (dni y pass) y devolver el usuario si existe
-    login: async (dni, pass) => db.usuarios.find(u => u.dni === dni && u.pass === pass),
-
-    // --- FUNCIONES PARA HABITACIONES ---
-    // BACKEND: Petición a la base de datos para obtener la lista de todas las habitaciones
-    getHabitaciones: async () => [...db.habitaciones],
-
-    // BACKEND: Petición a tu base de datos para agregar una nueva habitación (POST /api/habitaciones)
-    addHabitacion: async (data) => {
-        if(db.habitaciones.find(h => h.id === data.id)) throw new Error('El ID de habitación ya existe');
-        const nueva = {
-            id: data.id, 
-            tipo: data.tipo, 
-            precio: data.precio, 
-            estado: 'LIBRE',
-            caracteristicas: data.caracteristicas // Ya no hacemos .split() acá
-        };
-        db.habitaciones.push(nueva);
-        return nueva;
+    // BACKEND: Petición a la API para verificar credenciales (dni y pass)
+    login: async (dni, pass) => {
+        try {
+            const res = await fetch(`${BASE_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dni, pass })
+            });
+            if (!res.ok) return null;
+            return await res.json();
+        } catch (e) {
+            console.error('Error en login fetch:', e);
+            return null;
+        }
     },
 
-    // BACKEND: Petición a la base de datos para eliminar una habitación por su ID
+    // --- FUNCIONES PARA HABITACIONES ---
+    getHabitaciones: async () => {
+        const res = await fetch(`${BASE_URL}/habitaciones`);
+        if (!res.ok) throw new Error('Error al obtener habitaciones');
+        return await res.json();
+    },
+
+    addHabitacion: async (data) => {
+        const res = await fetch(`${BASE_URL}/habitaciones`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Error al agregar habitación');
+        }
+        return await res.json();
+    },
+
     deleteHabitacion: async (id) => {
-        db.habitaciones = db.habitaciones.filter(h => h.id !== id);
+        const res = await fetch(`${BASE_URL}/habitaciones/${id}`, {
+            method: 'DELETE'
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Error al eliminar habitación');
+        }
+        return await res.json();
     },
 
     // --- FUNCIONES PARA HUESPEDES ---
-    // BACKEND: Petición a la base de datos para obtener la lista de todos los huéspedes
-    getHuespedes: async () => [...db.huespedes],
+    getHuespedes: async () => {
+        const res = await fetch(`${BASE_URL}/huespedes`);
+        if (!res.ok) throw new Error('Error al obtener huéspedes');
+        return await res.json();
+    },
 
-    // BACKEND: Petición la base de datos para registrar un nuevo huésped, asignándole una habitación disponible y actualizando el estado de la habitación a ocupada
     addHuesped: async (data) => {
-        const hab = db.habitaciones.find(h => h.id === data.habitacion_id);
-        if(!hab || hab.estado === 'OCUPADA') throw new Error('La habitación no está disponible');
-
-        data.id = db.huespedes.length + 1;
-        data.estado = 'ACTIVO';
-        db.huespedes.push(data);
-
-        hab.estado = 'OCUPADA';
-        return data;
-    },
-
-    // --- FUNCIONES PARA EMPLEADOS ---
-    // BACKEND: Petición a la base de datos para obtener la lista de todos los usuarios (empleados)
-    getUsuarios: async () => [...db.usuarios],
-
-    // BACKEND: Petición a la base de datos para obtener el historial de actividad del sistema
-    getLogs: async () => [...db.logs],
-
-   // BACKEND: Petición a la base de datos para CREAR un nuevo usuario (POST /api/usuarios)
-    createUsuario: async (data) => {
-        const existe = db.usuarios.find(u => u.dni === data.dni);
-        if (existe) throw new Error('El usuario ya está registrado');
-        db.usuarios.push(data);
-    },
-
-    // BACKEND: Petición a la base de datos para ACTUALIZAR un usuario (PUT /api/usuarios/:dni)
-    updateUsuario: async (data) => {
-        const existeIndex = db.usuarios.findIndex(u => u.dni === data.dni);
-        if (existeIndex >= 0) {
-            db.usuarios[existeIndex] = data; 
-        } else {
-            throw new Error('El usuario no existe');
+        const res = await fetch(`${BASE_URL}/huespedes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Error al registrar huésped');
         }
+        return await res.json();
+    },
+
+    // --- FUNCIONES PARA EMPLEADOS Y LOGS ---
+    getUsuarios: async () => {
+        const res = await fetch(`${BASE_URL}/usuarios`);
+        if (!res.ok) throw new Error('Error al obtener usuarios');
+        return await res.json();
+    },
+
+    getLogs: async () => {
+        const res = await fetch(`${BASE_URL}/logs`);
+        if (!res.ok) throw new Error('Error al obtener logs');
+        return await res.json();
+    },
+
+    createUsuario: async (data) => {
+        const res = await fetch(`${BASE_URL}/usuarios`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Error al crear usuario');
+        }
+        return await res.json();
+    },
+
+    updateUsuario: async (data) => {
+        const res = await fetch(`${BASE_URL}/usuarios/${data.dni}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || 'Error al actualizar usuario');
+        }
+        return await res.json();
     }
 };
