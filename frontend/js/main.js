@@ -16,20 +16,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnAddRoom = document.getElementById('btn-add-room');
         
         if(user.rol === 'ADMIN') {
-            navAdmin.classList.remove('hidden');
-            roleBadge.classList.replace('bg-slate-100', 'bg-purple-100');
-            roleBadge.classList.replace('text-slate-600', 'text-purple-700');
-            btnAddRoom.classList.remove('hidden');
+            if (navAdmin) navAdmin.classList.remove('hidden');
+            roleBadge.className = 'inline-block mt-0.5 px-2 py-0.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider bg-[#F3E8FF] text-[#6B21A8] border border-[#E9D5FF]';
+            if (btnAddRoom) btnAddRoom.classList.remove('hidden');
         } else {
-            navAdmin.classList.add('hidden');
-            roleBadge.classList.replace('bg-purple-100', 'bg-slate-100');
-            roleBadge.classList.replace('text-purple-700', 'text-slate-600');
-            btnAddRoom.classList.add('hidden');
+            if (navAdmin) navAdmin.classList.add('hidden');
+            roleBadge.className = 'inline-block mt-0.5 px-2 py-0.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]';
+            if (btnAddRoom) btnAddRoom.classList.add('hidden');
         }
 
         document.getElementById('login-container').classList.add('hidden');
         document.getElementById('app-container').classList.remove('hidden');
-        document.querySelector('[data-target="page-habitaciones"]').click();
+        
+        // Cargar vista por defecto
+        const defaultNavBtn = document.querySelector('[data-target="page-habitaciones"]');
+        if (defaultNavBtn) defaultNavBtn.click();
     };
 
     if(auth.getUser()) initApp();
@@ -51,20 +52,21 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             document.querySelectorAll('.nav-btn').forEach(b => {
-                b.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
-                b.classList.add('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
+                b.classList.remove('active');
+                b.removeAttribute('data-active');
             });
-            e.currentTarget.classList.remove('text-slate-400', 'hover:text-white', 'hover:bg-slate-800');
-            e.currentTarget.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+            const currentBtn = e.currentTarget;
+            currentBtn.classList.add('active');
+            currentBtn.setAttribute('data-active', 'true');
             
-            const target = e.currentTarget.dataset.target;
+            const target = currentBtn.dataset.target;
             document.querySelectorAll('.app-page').forEach(p => p.classList.add('hidden'));
-            document.getElementById(target).classList.remove('hidden');
+            const targetPage = document.getElementById(target);
+            if (targetPage) targetPage.classList.remove('hidden');
             
-            document.getElementById('topbar-title').textContent = e.currentTarget.textContent.trim();
             if(target === 'page-habitaciones') render.habitaciones();
             if(target === 'page-huespedes') render.huespedes();
-            if(target === 'page-empleados') render.empleados(); // Nuevo trigger
+            if(target === 'page-empleados') render.empleados();
         });
     });
 
@@ -92,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if(u) {
                 document.getElementById('user-nombre').value = u.nombre;
                 document.getElementById('user-dni').value = u.dni;
-                document.getElementById('user-dni').readOnly = true; // No permite cambiar el DNI editando
+                document.getElementById('user-dni').readOnly = true;
                 document.getElementById('user-pass').value = u.pass;
                 document.getElementById('user-rol').value = u.rol;
                 document.getElementById('modal-add-user').classList.remove('hidden');
@@ -124,23 +126,23 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = auth.getUser();
             const modal = document.getElementById('modal-room-details');
             
-            document.getElementById('detail-room-id').textContent = h.id;
+            document.getElementById('detail-room-id').textContent = `#${h.id}`;
             document.getElementById('detail-room-tipo').textContent = h.tipo;
             document.getElementById('detail-room-precio').textContent = `$${h.precio.toLocaleString('es-AR')}`;
-            document.getElementById('detail-room-chars').innerHTML = h.caracteristicas.map(c => `<span class="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs border border-slate-200">${c}</span>`).join('');
+            document.getElementById('detail-room-chars').innerHTML = h.caracteristicas.map(c => `<span class="bg-[#F8FAFC] text-[#64748B] px-2 py-0.5 rounded-[6px] text-[11px] font-medium border border-[#E2E8F0]">${c}</span>`).join('');
             
             const elEstado = document.getElementById('detail-room-estado');
             elEstado.textContent = h.estado;
-            elEstado.className = `font-bold text-sm px-2 py-0.5 rounded ${h.estado === 'LIBRE' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`;
+            elEstado.className = `badge-status ${h.estado === 'LIBRE' ? 'badge-success' : 'badge-danger'}`;
 
             const zoneDelete = document.getElementById('zone-delete-room');
             zoneDelete.innerHTML = ''; 
             
             if(user.rol === 'ADMIN') {
                 if(h.estado === 'LIBRE') {
-                    zoneDelete.innerHTML = `<button id="btn-delete-room" data-id="${h.id}" class="w-full flex items-center justify-center gap-2 py-2 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition border border-red-200"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg> Eliminar Habitación</button>`;
+                    zoneDelete.innerHTML = `<button id="btn-delete-room" data-id="${h.id}" class="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-[#EF4444] bg-[#FFF5F5] hover:bg-[#FFE8E8] rounded-[10px] transition border border-[#FFE8E8]"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path></svg> Eliminar Habitación</button>`;
                 } else {
-                    zoneDelete.innerHTML = `<p class="text-xs text-center text-slate-400 italic">Habitación ocupada. No se puede eliminar.</p>`;
+                    zoneDelete.innerHTML = `<p class="text-xs text-center text-[#94A3B8] italic font-medium">Habitación ocupada. No se puede eliminar.</p>`;
                 }
             }
             modal.classList.remove('hidden');
@@ -170,7 +172,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('form-add-room').addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
-            // El frontend procesa el string y crea el Array
             const caracteristicasArray = document.getElementById('room-chars').value
                 .split(',')
                 .map(c => c.trim())
@@ -180,7 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: parseInt(document.getElementById('room-id').value), 
                 tipo: document.getElementById('room-type').value, 
                 precio: parseInt(document.getElementById('room-price').value),
-                caracteristicas: caracteristicasArray // <--- Ahora viaja como Array
+                caracteristicas: caracteristicasArray
             });
             document.getElementById('modal-add-room').classList.add('hidden');
             render.habitaciones();
@@ -198,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 rol: document.getElementById('user-rol').value
             };
 
-            // Logica condicional: Si el DNI es de solo lectura, estamos editando
             if (dniInput.readOnly) {
                 await api.updateUsuario(data);
             } else {

@@ -2,9 +2,27 @@ import { api } from '../services/api.js';
 
 export const render = {
     habitaciones: async (filtros = { tipo: '', estado: '', texto: '' }) => {
-        let habs = await api.getHabitaciones();
+        const habsAll = await api.getHabitaciones();
         const container = document.getElementById('grid-habitaciones');
         
+        // Actualización de Métricas KPI en tiempo real
+        const totalCount = habsAll.length;
+        const libresCount = habsAll.filter(h => h.estado === 'LIBRE').length;
+        const ocupadasCount = habsAll.filter(h => h.estado === 'OCUPADA').length;
+        const pctOccupancy = totalCount > 0 ? Math.round((ocupadasCount / totalCount) * 100) : 0;
+
+        const kpiTotal = document.getElementById('kpi-total-habs');
+        const kpiLibres = document.getElementById('kpi-libres-habs');
+        const kpiOcupadas = document.getElementById('kpi-ocupadas-habs');
+        const kpiPct = document.getElementById('kpi-porcentaje-ocupacion');
+
+        if (kpiTotal) kpiTotal.textContent = totalCount;
+        if (kpiLibres) kpiLibres.textContent = libresCount;
+        if (kpiOcupadas) kpiOcupadas.textContent = ocupadasCount;
+        if (kpiPct) kpiPct.textContent = `${pctOccupancy}%`;
+
+        // Filtrado
+        let habs = [...habsAll];
         if (filtros.tipo) habs = habs.filter(h => h.tipo === filtros.tipo);
         if (filtros.estado) habs = habs.filter(h => h.estado === filtros.estado);
         if (filtros.texto) {
@@ -13,32 +31,36 @@ export const render = {
         }
 
         if (habs.length === 0) {
-            container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 bg-white rounded-xl border border-slate-200">No se encontraron habitaciones con esos filtros.</div>`;
+            container.innerHTML = `<div class="col-span-full text-center py-12 text-[#64748B] soft-card font-medium text-xs">No se encontraron habitaciones con los criterios aplicados.</div>`;
             return;
         }
 
         container.innerHTML = habs.map(h => {
             const isOcupada = h.estado === 'OCUPADA';
-            const colorBadge = isOcupada ? 'bg-red-100 text-red-700 border-red-200' : 'bg-green-100 text-green-700 border-green-200';
-            const bgCard = isOcupada ? 'bg-slate-50' : 'bg-white';
+            const badgeClass = isOcupada ? 'badge-danger' : 'badge-success';
             
             return `
-            <div class="${bgCard} border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition relative group overflow-hidden flex flex-col">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-slate-800">Hab. ${h.id}</h3>
-                        <p class="text-sm text-slate-500 font-medium">${h.tipo}</p>
+            <div class="soft-card flex flex-col justify-between group">
+                <div>
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h3 class="text-lg font-extrabold text-[#1E293B]">Hab. #${h.id}</h3>
+                            <p class="text-xs font-medium text-[#64748B]">${h.tipo}</p>
+                        </div>
+                        <span class="badge-status ${badgeClass}">${h.estado}</span>
                     </div>
-                    <span class="px-2.5 py-1 text-xs font-bold rounded-full border ${colorBadge}">${h.estado}</span>
-                </div>
-                <div class="mb-4 flex-1">
-                    <p class="text-xl font-bold text-blue-600 mb-2">$${h.precio.toLocaleString('es-AR')}<span class="text-xs text-slate-400 font-normal">/noche</span></p>
-                    <div class="flex flex-wrap gap-1">
-                        ${h.caracteristicas.slice(0,2).map(c => `<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded truncate max-w-[120px]">${c}</span>`).join('')}
-                        ${h.caracteristicas.length > 2 ? `<span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-1 rounded">+${h.caracteristicas.length - 2}</span>` : ''}
+                    <div class="mb-4">
+                        <p class="text-2xl font-extrabold text-[#0084FF] tracking-tight mb-2">$${h.precio.toLocaleString('es-AR')}<span class="text-xs text-[#94A3B8] font-normal"> /noche</span></p>
+                        <div class="flex flex-wrap gap-1.5">
+                            ${h.caracteristicas.slice(0, 3).map(c => `<span class="text-[10px] bg-[#F8FAFC] text-[#64748B] px-2 py-0.5 rounded-[6px] border border-[#E2E8F0] font-medium truncate max-w-[110px]">${c}</span>`).join('')}
+                            ${h.caracteristicas.length > 3 ? `<span class="text-[10px] bg-[#F8FAFC] text-[#64748B] px-2 py-0.5 rounded-[6px] border border-[#E2E8F0] font-medium">+${h.caracteristicas.length - 3}</span>` : ''}
+                        </div>
                     </div>
                 </div>
-                <button class="btn-room-details w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-sm font-medium transition" data-id="${h.id}">Ver Detalles</button>
+                <button class="btn-room-details w-full py-2 bg-[#F8FAFC] hover:bg-[#E2E8F0] text-[#1E293B] border border-[#E2E8F0] rounded-[10px] text-xs font-semibold transition flex items-center justify-center gap-1.5" data-id="${h.id}">
+                    <svg class="w-3.5 h-3.5 text-[#64748B]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>Ver Detalles</span>
+                </button>
             </div>`;
         }).join('');
     },
@@ -52,27 +74,27 @@ export const render = {
         }
 
         if (huespedes.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500">No hay huéspedes registrados.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" class="px-6 py-8 text-center text-[#64748B] font-medium">No hay huéspedes registrados en el sistema.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = huespedes.map(h => `
-            <tr class="hover:bg-slate-50 transition">
+            <tr class="hover:bg-[#F8FAFC] transition">
                 <td class="px-6 py-4">
-                    <p class="font-medium text-slate-800">${h.nombre}</p>
-                    <p class="text-xs text-slate-500">DNI: ${h.dni}</p>
+                    <p class="font-bold text-[#1E293B] text-xs">${h.nombre}</p>
+                    <p class="text-[11px] text-[#64748B]">DNI: ${h.dni}</p>
                 </td>
-                <td class="px-6 py-4 font-bold text-slate-700">#${h.habitacion_id}</td>
-                <td class="px-6 py-4 text-sm">
-                    <p class="text-slate-800">${h.ingreso}</p>
-                    <p class="text-slate-500 text-xs">al ${h.salida}</p>
+                <td class="px-6 py-4 font-bold text-[#0084FF] text-xs">Hab. #${h.habitacion_id}</td>
+                <td class="px-6 py-4 text-xs">
+                    <p class="text-[#1E293B] font-semibold">${h.ingreso}</p>
+                    <p class="text-[#94A3B8] text-[11px]">Salida: ${h.salida}</p>
                 </td>
-                <td class="px-6 py-4 text-sm">
-                    <p>${h.comida}</p>
-                    ${h.descuento > 0 ? `<span class="text-xs text-green-600 font-medium">-${h.descuento}% Desc.</span>` : ''}
+                <td class="px-6 py-4 text-xs">
+                    <p class="text-[#64748B] font-medium">${h.comida}</p>
+                    ${h.descuento > 0 ? `<span class="text-[10px] text-[#22C55E] font-bold">-${h.descuento}% Descuento</span>` : ''}
                 </td>
                 <td class="px-6 py-4 text-right">
-                    <span class="inline-block px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full border border-blue-100">${h.estado}</span>
+                    <span class="badge-status badge-info">${h.estado}</span>
                 </td>
             </tr>
         `).join('');
@@ -82,23 +104,23 @@ export const render = {
         const logs = await api.getLogs();
         
         document.getElementById('table-usuarios').innerHTML = usuarios.map(u => `
-            <tr class="hover:bg-slate-50 transition">
-                <td class="px-6 py-4 font-medium text-slate-800">${u.nombre}</td>
-                <td class="px-6 py-4 text-slate-600 text-sm font-mono">${u.dni}</td>
+            <tr class="hover:bg-[#F8FAFC] transition">
+                <td class="px-6 py-4 font-bold text-[#1E293B] text-xs">${u.nombre}</td>
+                <td class="px-6 py-4 text-[#64748B] text-xs font-mono">${u.dni}</td>
                 <td class="px-6 py-4">
-                    <span class="px-2.5 py-1 text-[10px] font-bold rounded-full ${u.rol === 'ADMIN' ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}">${u.rol}</span>
+                    <span class="badge-status ${u.rol === 'ADMIN' ? 'badge-purple' : 'bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]'}">${u.rol}</span>
                 </td>
                 <td class="px-6 py-4 text-right">
-                    <button class="btn-edit-user text-purple-600 hover:text-purple-800 text-sm font-medium transition" data-dni="${u.dni}">Editar / Ver Pass</button>
+                    <button class="btn-edit-user text-[#0084FF] hover:text-[#0073E6] text-xs font-semibold transition" data-dni="${u.dni}">Editar / Ver Pass</button>
                 </td>
             </tr>
         `).join('');
 
         document.getElementById('table-logs').innerHTML = logs.map(l => `
-            <tr class="hover:bg-slate-50 transition">
-                <td class="px-6 py-3 text-slate-500 text-xs whitespace-nowrap">${l.fecha}</td>
-                <td class="px-6 py-3 font-medium text-slate-700 text-sm">${l.usuario}</td>
-                <td class="px-6 py-3 text-slate-600 text-sm">${l.accion}</td>
+            <tr class="hover:bg-[#F8FAFC] transition">
+                <td class="px-6 py-3.5 text-[#94A3B8] text-[11px] whitespace-nowrap font-mono">${l.fecha}</td>
+                <td class="px-6 py-3.5 font-semibold text-[#1E293B] text-xs">${l.usuario}</td>
+                <td class="px-6 py-3.5 text-[#64748B] text-xs">${l.accion}</td>
             </tr>
         `).join('');
     }

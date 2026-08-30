@@ -3,344 +3,429 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Gestión hotelera</title>
+    <title>Sistema de Gestión Hotelera - SaaS Soft-Light</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans h-screen overflow-hidden flex selection:bg-blue-200 selection:text-blue-900">
+<body class="bg-[#F8FAFC] text-[#1E293B] font-sans antialiased selection:bg-[#EBF3FF] selection:text-[#0084FF] h-screen w-screen overflow-hidden m-0 p-0">
 
-    <div id="login-container" class="absolute inset-0 z-50 bg-slate-100 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md fade-in border border-slate-200">
+    <!-- Modal / Pantalla de Login -->
+    <div id="login-container" class="fixed inset-0 z-50 bg-[#F0F4F8] flex items-center justify-center p-4">
+        <div class="bg-white rounded-[24px] shadow-[0_25px_50px_-12px_rgba(15,23,42,0.12)] p-8 w-full max-w-md fade-in border border-[#EDF2F7]">
             <div class="text-center mb-8">
-                <div class="w-16 h-16 bg-blue-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                </div>
-                <h1 class="text-2xl font-bold text-slate-800">Hotel</h1>
-                <p class="text-slate-500 text-sm mt-1">Ingreso al Sistema de Recepción</p>
+                <h1 class="text-2xl font-extrabold text-[#1E293B] tracking-tight">LOGIN</h1>
+                <p class="text-[#64748B] text-xs font-medium mt-1 uppercase tracking-wider">Acceso al Sistema de Recepción</p>
             </div>
 
             <form id="form-login" class="space-y-5">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">DNI del Empleado</label>
-                    <input type="text" id="login-dni" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="Ej: 11112222">
+                    <label class="block text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-1.5">DNI del Empleado</label>
+                    <input type="text" id="login-dni" required class="control-input w-full" placeholder="Ej: 11112222">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-                    <input type="password" id="login-pass" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition" placeholder="••••••••">
+                    <label class="block text-xs font-semibold text-[#64748B] uppercase tracking-wider mb-1.5">Contraseña</label>
+                    <input type="password" id="login-pass" required class="control-input w-full" placeholder="••••••••">
                 </div>
-                <div id="login-error" class="hidden text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100">
+                <div id="login-error" class="hidden text-[#EF4444] text-xs font-medium bg-[#FFF5F5] p-3 rounded-[10px] border border-[#FFE8E8]">
                     Credenciales incorrectas. Verifique e intente nuevamente.
                 </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition shadow-md flex justify-center items-center gap-2">
-                    Ingresar al Turno
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                <button type="submit" class="btn-primary-pill w-full justify-center py-3 text-sm shadow-[0_4px_14px_rgba(0,132,255,0.4)]">
+                    <span>Ingresar al Turno</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path></svg>
                 </button>
             </form>
 
-            <div class="mt-8 border-t border-slate-200 pt-6">
-                <p class="text-xs text-slate-500 mb-3 text-center uppercase tracking-wider font-semibold">Credenciales de Prueba</p>
+            <div class="mt-8 border-t border-[#EDF2F7] pt-6">
+                <p class="text-[11px] text-[#94A3B8] mb-3 text-center uppercase tracking-wider font-semibold">Credenciales de Prueba</p>
                 <div class="grid grid-cols-2 gap-3">
-                    <button type="button" onclick="document.getElementById('login-dni').value='1111'; document.getElementById('login-pass').value='admin';" class="text-xs bg-purple-50 text-purple-700 hover:bg-purple-100 py-2 rounded border border-purple-200 transition">Admin (1111 / admin)</button>
-                    <button type="button" onclick="document.getElementById('login-dni').value='2222'; document.getElementById('login-pass').value='recep';" class="text-xs bg-slate-100 text-slate-700 hover:bg-slate-200 py-2 rounded border border-slate-200 transition">Recepción (2222 / recep)</button>
+                    <button type="button" onclick="document.getElementById('login-dni').value='1111'; document.getElementById('login-pass').value='admin';" class="text-xs bg-[#F3E8FF] text-[#6B21A8] hover:bg-[#E9D5FF] py-2 px-3 rounded-[10px] border border-[#E9D5FF] font-semibold transition">Admin (1111 / admin)</button>
+                    <button type="button" onclick="document.getElementById('login-dni').value='2222'; document.getElementById('login-pass').value='recep';" class="text-xs bg-[#F8FAFC] text-[#64748B] hover:bg-[#E2E8F0] py-2 px-3 rounded-[10px] border border-[#E2E8F0] font-semibold transition">Recepción (2222 / recep)</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="app-container" class="hidden flex w-full h-full fade-in">
-        <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col h-full shrink-0 shadow-xl z-20">
-            <div class="p-6 flex items-center gap-3 border-b border-slate-800">
-                <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center text-white shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                </div>
+    <!-- Main Full Screen App Container -->
+    <div id="app-container" class="hidden w-screen h-screen flex flex-col bg-[#F8FAFC] fade-in">
+        <!-- Topbar Navigation (Menu Superior) -->
+        <header class="topbar">
+            <!-- Brand / Logo Placement -->
+            <div class="flex items-center gap-3">
                 <div>
-                    <h2 class="font-bold text-white text-lg leading-tight">Sistema</h2>
-                    <p class="text-[10px] text-blue-400 uppercase tracking-widest">Recepción</p>
+                    <h2 class="font-extrabold text-[#1E293B] text-base leading-tight">Sistema de gestion Hotelera</h2>
+                    <p class="text-[10px] text-[#0084FF] font-bold uppercase tracking-wider">Gestión & Control</p>
                 </div>
             </div>
 
-            <nav class="flex-1 overflow-y-auto py-6 px-3 space-y-1">
-                <button data-target="page-habitaciones" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition text-white bg-blue-600 shadow-md">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-                    Habitaciones
+            <!-- Top Horizontal Navigation Links -->
+            <nav class="topbar-nav flex items-center gap-1.5">
+                <button data-target="page-habitaciones" class="nav-btn active">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10.5V19m0-8.5A2.5 2.5 0 015.5 8h13A2.5 2.5 0 0121 10.5v8.5M3 10.5h18M3 19h18M7 8V6a2 2 0 012-2h6a2 2 0 012 2v2"></path></svg>
+                    <span>Habitaciones</span>
                 </button>
-                <button data-target="page-huespedes" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-800">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    Huéspedes
+                <button data-target="page-huespedes" class="nav-btn">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"></path></svg>
+                    <span>Huéspedes</span>
                 </button>
-
-                <div id="nav-admin-section" class="hidden pt-6 mt-6 border-t border-slate-800">
-                    <p class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Administración</p>
-                    <button data-target="page-empleados" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition text-slate-400 hover:text-white hover:bg-slate-800">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        Empleados y Logs
+                
+                <div id="nav-admin-section" class="hidden flex items-center gap-1.5 border-l border-[#EDF2F7] pl-2 ml-1">
+                    <button data-target="page-empleados" class="nav-btn">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0m-9.75 0h9.75"></path></svg>
+                        <span>Empleados y Logs</span>
                     </button>
                 </div>
             </nav>
-        </aside>
 
-        <main class="flex-1 flex flex-col min-w-0 bg-slate-50">
-            <header class="bg-white h-16 border-b border-slate-200 flex items-center justify-between px-8 shrink-0 z-10 shadow-sm">
-                <h2 id="topbar-title" class="text-xl font-bold text-slate-800">Habitaciones</h2>
-                <div class="flex items-center gap-6">
-                    <div class="flex items-center gap-3">
-                        <div class="text-right">
-                            <p id="ui-user-name" class="text-sm font-bold text-slate-800 leading-tight">Cargando...</p>
-                            <span id="ui-user-role" class="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide bg-slate-100 text-slate-600">ROL</span>
-                        </div>
-                        <div class="w-10 h-10 rounded-full bg-slate-200 border-2 border-white shadow-sm flex items-center justify-center text-slate-500 font-bold overflow-hidden">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                        </div>
+            <!-- User Profile Module -->
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-full bg-[#EBF3FF] border border-[#BFDBFE] text-[#0084FF] flex items-center justify-center font-semibold shrink-0">
+                        <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"></path></svg>
                     </div>
-                    <div class="w-px h-8 bg-slate-200"></div>
-                    <button id="btn-logout" class="text-red-600 hover:bg-red-50 hover:text-red-700 px-3 py-2 rounded-lg transition font-medium text-sm flex items-center gap-2 group">
-                        <svg class="w-5 h-5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg> Salir
+                    <div class="hidden sm:block text-right">
+                        <p id="ui-user-name" class="text-xs font-bold text-[#1E293B] leading-tight">Cargando...</p>
+                        <span id="ui-user-role" class="inline-block mt-0.5 px-2 py-0.5 rounded-[6px] text-[10px] font-bold uppercase tracking-wider bg-[#F8FAFC] text-[#64748B] border border-[#E2E8F0]">ROL</span>
+                    </div>
+                </div>
+                <div class="w-px h-6 bg-[#EDF2F7]"></div>
+                <button id="btn-logout" title="Cerrar Sesión" class="text-[#64748B] hover:text-[#FF5A5F] hover:bg-[#FFF5F5] p-2 rounded-[10px] transition font-semibold text-xs flex items-center gap-1.5 group cursor-pointer">
+                    <svg class="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"></path></svg>
+                    <span class="hidden sm:inline">Salir</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dynamic Views Container -->
+        <div class="flex-1 overflow-y-auto p-6 md:p-8 bg-[#F8FAFC]">
+            
+            <!-- Page: Habitaciones -->
+            <section id="page-habitaciones" class="app-page w-full max-w-7xl mx-auto block fade-in space-y-6">
+                <!-- Page Header & Title -->
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-[#1E293B] tracking-tight">Gestión de Habitaciones</h2>
+                        <p class="text-xs font-medium text-[#64748B] mt-0.5">Control en tiempo real de disponibilidad, precios y características</p>
+                    </div>
+                    <button id="btn-add-room" class="hidden btn-coral-pill text-xs shadow-[0_4px_12px_rgba(255,90,95,0.35)] shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path></svg>
+                        <span>Nueva Habitación</span>
                     </button>
                 </div>
-            </header>
 
-            <div class="flex-1 overflow-y-auto p-8 relative">
-                <section id="page-habitaciones" class="app-page w-full max-w-6xl mx-auto block fade-in">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-                        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                            <div class="relative flex-grow md:flex-grow-0">
-                                <svg class="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                <input type="text" id="filtro-texto" placeholder="Buscar Nº o detalle..." class="pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full md:w-48 transition">
-                            </div>
-                            <select id="filtro-tipo" class="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">Todos los Tipos</option>
-                                <option value="Simple">Simple</option>
-                                <option value="Doble">Doble</option>
-                                <option value="Matrimonial">Matrimonial</option>
-                                <option value="Suite">Suite</option>
-                            </select>
-                            <select id="filtro-estado" class="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-slate-50 focus:ring-2 focus:ring-blue-500 outline-none">
-                                <option value="">Todos los Estados</option>
-                                <option value="LIBRE">Solo Libres</option>
-                                <option value="OCUPADA">Solo Ocupadas</option>
-                            </select>
+                <!-- Metrics / KPI Row -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="soft-card flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-[12px] bg-[#EBF3FF] text-[#0084FF] flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21"></path></svg>
                         </div>
-                        <button id="btn-add-room" class="hidden bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 shadow-sm text-sm shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg> Nueva Habitación
-                        </button>
+                        <div>
+                            <p class="kpi-title">Habitaciones</p>
+                            <h4 id="kpi-total-habs" class="kpi-value">0</h4>
+                        </div>
                     </div>
-                    <div id="grid-habitaciones" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"></div>
-                </section>
+                    <div class="soft-card flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-[12px] bg-[#DCFCE7] text-[#22C55E] flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="kpi-title">Libres</p>
+                            <h4 id="kpi-libres-habs" class="kpi-value">0</h4>
+                        </div>
+                    </div>
+                    <div class="soft-card flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-[12px] bg-[#FFE8E8] text-[#FF5A5F] flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="kpi-title">Ocupadas</p>
+                            <h4 id="kpi-ocupadas-habs" class="kpi-value">0</h4>
+                        </div>
+                    </div>
+                    <div class="soft-card flex items-center gap-4">
+                        <div class="w-11 h-11 rounded-[12px] bg-[#F3E8FF] text-[#8B5CF6] flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"></path></svg>
+                        </div>
+                        <div>
+                            <p class="kpi-title">Ocupación</p>
+                            <h4 id="kpi-porcentaje-ocupacion" class="kpi-value">0%</h4>
+                        </div>
+                    </div>
+                </div>
 
-                <section id="page-huespedes" class="app-page w-full max-w-6xl mx-auto hidden fade-in">
-                    <div class="flex justify-between items-center mb-6">
-                        <div class="relative w-72">
-                            <svg class="w-5 h-5 absolute left-3 top-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                            <input type="text" id="search-huesped" placeholder="Buscar por Nombre o DNI..." class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition">
+                <!-- Filter Bar -->
+                <div class="soft-card flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <div class="relative flex-grow md:flex-grow-0 min-w-[200px]">
+                            <svg class="w-4 h-4 absolute left-3 top-3 text-[#94A3B8]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
+                            <input type="text" id="filtro-texto" placeholder="Buscar Nº o detalle..." class="control-input pl-9 w-full">
                         </div>
-                        <button id="btn-add-huesped" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 shadow-md">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path></svg> Nuevo Huésped
-                        </button>
+                        <select id="filtro-tipo" class="control-select">
+                            <option value="">Todos los Tipos</option>
+                            <option value="Simple">Simple</option>
+                            <option value="Doble">Doble</option>
+                            <option value="Matrimonial">Matrimonial</option>
+                            <option value="Suite">Suite</option>
+                        </select>
+                        <select id="filtro-estado" class="control-select">
+                            <option value="">Todos los Estados</option>
+                            <option value="LIBRE">Solo Libres</option>
+                            <option value="OCUPADA">Solo Ocupadas</option>
+                        </select>
                     </div>
-                    <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                </div>
+
+                <!-- Grid Habitaciones -->
+                <div id="grid-habitaciones" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+            </section>
+
+            <!-- Page: Huéspedes -->
+            <section id="page-huespedes" class="app-page w-full max-w-7xl mx-auto hidden fade-in space-y-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-extrabold text-[#1E293B] tracking-tight">Registro de Huéspedes</h2>
+                        <p class="text-xs font-medium text-[#64748B] mt-0.5">Control de registros, estadías y asignación de habitaciones</p>
+                    </div>
+                    <button id="btn-add-huesped" class="btn-primary-pill text-xs shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path></svg>
+                        <span>Nuevo Huésped</span>
+                    </button>
+                </div>
+
+                <div class="soft-card flex justify-between items-center">
+                    <div class="relative w-full max-w-md">
+                        <svg class="w-4 h-4 absolute left-3.5 top-3 text-[#94A3B8]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"></path></svg>
+                        <input type="text" id="search-huesped" placeholder="Buscar huésped por Nombre o DNI..." class="control-input pl-10 w-full">
+                    </div>
+                </div>
+
+                <div class="soft-card !p-0 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-[#F8FAFC] text-[#64748B] border-b border-[#EDF2F7] uppercase tracking-wider font-semibold">
                                 <tr>
-                                    <th class="px-6 py-4 font-semibold">Huésped / DNI</th>
-                                    <th class="px-6 py-4 font-semibold">Habitación</th>
-                                    <th class="px-6 py-4 font-semibold">Fechas (Ingreso/Salida)</th>
-                                    <th class="px-6 py-4 font-semibold">Servicio / Descuento</th>
-                                    <th class="px-6 py-4 font-semibold text-right">Estado</th>
+                                    <th class="px-6 py-4">Huésped / DNI</th>
+                                    <th class="px-6 py-4">Habitación</th>
+                                    <th class="px-6 py-4">Fechas (Ingreso / Salida)</th>
+                                    <th class="px-6 py-4">Servicio / Descuento</th>
+                                    <th class="px-6 py-4 text-right">Estado</th>
                                 </tr>
                             </thead>
-                            <tbody id="table-huespedes" class="divide-y divide-slate-100"></tbody>
+                            <tbody id="table-huespedes" class="divide-y divide-[#EDF2F7]"></tbody>
                         </table>
                     </div>
-                </section>
+                </div>
+            </section>
 
-                <section id="page-empleados" class="app-page w-full max-w-6xl mx-auto hidden fade-in space-y-8">
-                    <!-- Gestión de Usuarios -->
-                    <div>
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                                Gestión de Usuarios
-                            </h3>
-                            <button id="btn-add-user" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 shadow-sm text-sm">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                Nuevo Usuario
-                            </button>
-                        </div>
-                        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+            <!-- Page: Empleados y Logs (Admin) -->
+            <section id="page-empleados" class="app-page w-full max-w-7xl mx-auto hidden fade-in space-y-8">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-[#1E293B] tracking-tight mb-1">Administración del Sistema</h2>
+                    <p class="text-xs font-medium text-[#64748B]">Gestión de personal con acceso y auditoría de eventos</p>
+                </div>
+
+                <!-- Gestión de Usuarios -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-bold text-[#1E293B] flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#8B5CF6]"></span>
+                            Usuarios y Empleados
+                        </h3>
+                        <button id="btn-add-user" class="btn-coral-pill text-xs">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"></path></svg>
+                            <span>Nuevo Usuario</span>
+                        </button>
+                    </div>
+                    <div class="soft-card !p-0 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-[#F8FAFC] text-[#64748B] border-b border-[#EDF2F7] uppercase tracking-wider font-semibold">
                                     <tr>
-                                        <th class="px-6 py-4 font-semibold">Nombre del Empleado</th>
-                                        <th class="px-6 py-4 font-semibold">DNI (Usuario)</th>
-                                        <th class="px-6 py-4 font-semibold">Rol</th>
-                                        <th class="px-6 py-4 font-semibold text-right">Acciones</th>
+                                        <th class="px-6 py-4">Nombre del Empleado</th>
+                                        <th class="px-6 py-4">DNI (Usuario)</th>
+                                        <th class="px-6 py-4">Rol</th>
+                                        <th class="px-6 py-4 text-right">Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody id="table-usuarios" class="divide-y divide-slate-100"></tbody>
+                                <tbody id="table-usuarios" class="divide-y divide-[#EDF2F7]"></tbody>
                             </table>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Historial de Logs -->
-                    <div>
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                                Historial de Actividad
-                            </h3>
-                        </div>
-                        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase tracking-wider text-xs">
+                <!-- Historial de Logs -->
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-base font-bold text-[#1E293B] flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-[#0084FF]"></span>
+                            Historial de Actividad
+                        </h3>
+                    </div>
+                    <div class="soft-card !p-0 overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead class="bg-[#F8FAFC] text-[#64748B] border-b border-[#EDF2F7] uppercase tracking-wider font-semibold">
                                     <tr>
-                                        <th class="px-6 py-3 font-semibold">Fecha y Hora</th>
-                                        <th class="px-6 py-3 font-semibold">Empleado</th>
-                                        <th class="px-6 py-3 font-semibold">Acción Realizada</th>
+                                        <th class="px-6 py-3.5">Fecha y Hora</th>
+                                        <th class="px-6 py-3.5">Empleado</th>
+                                        <th class="px-6 py-3.5">Acción Realizada</th>
                                     </tr>
                                 </thead>
-                                <tbody id="table-logs" class="divide-y divide-slate-100"></tbody>
+                                <tbody id="table-logs" class="divide-y divide-[#EDF2F7]"></tbody>
                             </table>
                         </div>
                     </div>
-                </section>
-            </div>
-        </main>
+                </div>
+            </section>
+        </div>
     </div>
 
-    <!-- Modales de Habitaciones y Huéspedes -->
-    <div id="modal-add-room" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden fade-in">
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-purple-50">
-                <h3 class="font-bold text-purple-900 text-lg">Añadir Habitación</h3>
-                <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    <!-- Modal: Añadir Habitación -->
+    <div id="modal-add-room" class="hidden fixed inset-0 z-50 bg-[#1E293B]/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="popover-modal w-full max-w-md fade-in">
+            <div class="px-6 py-4 border-b border-[#EDF2F7] flex justify-between items-center bg-[#F8FAFC]">
+                <h3 class="font-bold text-[#1E293B] text-base">Añadir Habitación</h3>
+                <button type="button" class="btn-close-modal text-[#94A3B8] hover:text-[#1E293B] transition"><svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
             <form id="form-add-room" class="p-6 space-y-4">
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Nº Habitación</label>
-                        <input type="number" id="room-id" required min="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                        <label class="block text-xs font-semibold text-[#64748B] mb-1">Nº Habitación</label>
+                        <input type="number" id="room-id" required min="1" class="control-input w-full">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Tipo</label>
-                        <select id="room-type" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
-                            <option value="Simple">Simple</option><option value="Doble">Doble</option>
-                            <option value="Matrimonial">Matrimonial</option><option value="Suite">Suite</option>
+                        <label class="block text-xs font-semibold text-[#64748B] mb-1">Tipo</label>
+                        <select id="room-type" class="control-select w-full">
+                            <option value="Simple">Simple</option>
+                            <option value="Doble">Doble</option>
+                            <option value="Matrimonial">Matrimonial</option>
+                            <option value="Suite">Suite</option>
                         </select>
                     </div>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Precio por Noche ($ ARS)</label>
-                    <input type="number" id="room-price" required min="0" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                    <label class="block text-xs font-semibold text-[#64748B] mb-1">Precio por Noche ($ ARS)</label>
+                    <input type="number" id="room-price" required min="0" class="control-input w-full">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Características (Separadas por coma)</label>
-                    <input type="text" id="room-chars" placeholder="Ej: TV, Balcón, Jacuzzi" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                    <label class="block text-xs font-semibold text-[#64748B] mb-1">Características (separadas por coma)</label>
+                    <input type="text" id="room-chars" placeholder="Ej: TV, Balcón, Jacuzzi" class="control-input w-full">
                 </div>
-                <div class="flex gap-3 pt-4">
-                    <button type="button" class="btn-close-modal flex-1 px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition font-medium">Cancelar</button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition font-medium shadow-md">Guardar</button>
+                <div class="flex gap-3 pt-3 border-t border-[#EDF2F7]">
+                    <button type="button" class="btn-close-modal flex-1 px-4 py-2.5 bg-[#F8FAFC] text-[#64748B] hover:bg-[#E2E8F0] rounded-[10px] transition font-semibold text-xs border border-[#E2E8F0]">Cancelar</button>
+                    <button type="submit" class="btn-coral-pill flex-1 justify-center py-2.5 text-xs">Guardar Habitación</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="modal-room-details" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden fade-in">
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">Habitación <span id="detail-room-id" class="text-blue-600"></span></h3>
-                <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    <!-- Modal: Detalles de Habitación -->
+    <div id="modal-room-details" class="hidden fixed inset-0 z-50 bg-[#1E293B]/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="popover-modal w-full max-w-sm fade-in">
+            <div class="px-6 py-4 border-b border-[#EDF2F7] flex justify-between items-center bg-[#F8FAFC]">
+                <h3 class="font-bold text-[#1E293B] text-base flex items-center gap-2">Habitación <span id="detail-room-id" class="text-[#0084FF]"></span></h3>
+                <button type="button" class="btn-close-modal text-[#94A3B8] hover:text-[#1E293B] transition"><svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
             <div class="p-6">
                 <div class="space-y-3 mb-6">
-                    <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <span class="text-slate-500 text-sm">Estado</span><span id="detail-room-estado" class="font-bold text-sm"></span>
+                    <div class="flex justify-between items-center pb-2 border-b border-[#EDF2F7]">
+                        <span class="text-[#64748B] text-xs font-medium">Estado</span>
+                        <span id="detail-room-estado"></span>
                     </div>
-                    <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <span class="text-slate-500 text-sm">Tipo</span><span id="detail-room-tipo" class="font-medium text-slate-800"></span>
+                    <div class="flex justify-between items-center pb-2 border-b border-[#EDF2F7]">
+                        <span class="text-[#64748B] text-xs font-medium">Tipo</span>
+                        <span id="detail-room-tipo" class="font-bold text-[#1E293B] text-xs"></span>
                     </div>
-                    <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                        <span class="text-slate-500 text-sm">Precio / Noche</span><span id="detail-room-precio" class="font-medium text-slate-800"></span>
+                    <div class="flex justify-between items-center pb-2 border-b border-[#EDF2F7]">
+                        <span class="text-[#64748B] text-xs font-medium">Precio / Noche</span>
+                        <span id="detail-room-precio" class="font-extrabold text-[#0084FF] text-sm"></span>
                     </div>
-                    <div><span class="block text-slate-500 text-sm mb-1">Características:</span><div id="detail-room-chars" class="flex flex-wrap gap-2 mt-2"></div></div>
+                    <div>
+                        <span class="block text-[#64748B] text-xs font-medium mb-1.5">Características:</span>
+                        <div id="detail-room-chars" class="flex flex-wrap gap-1.5"></div>
+                    </div>
                 </div>
-                <div id="zone-delete-room" class="pt-4 border-t border-slate-200"></div>
+                <div id="zone-delete-room" class="pt-4 border-t border-[#EDF2F7]"></div>
             </div>
         </div>
     </div>
 
-    <div id="modal-add-huesped" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden fade-in">
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-blue-50">
-                <h3 class="font-bold text-blue-900 text-lg">Registrar Huésped</h3>
-                <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    <!-- Modal: Registrar Huésped -->
+    <div id="modal-add-huesped" class="hidden fixed inset-0 z-50 bg-[#1E293B]/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="popover-modal w-full max-w-lg fade-in">
+            <div class="px-6 py-4 border-b border-[#EDF2F7] flex justify-between items-center bg-[#F8FAFC]">
+                <h3 class="font-bold text-[#1E293B] text-base">Registrar Huésped</h3>
+                <button type="button" class="btn-close-modal text-[#94A3B8] hover:text-[#1E293B] transition"><svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
             <form id="form-add-huesped" class="p-6 space-y-4">
-                <div id="error-add-huesped" class="hidden text-red-600 text-sm bg-red-50 p-3 rounded-lg border border-red-100 mb-4"></div>
+                <div id="error-add-huesped" class="hidden text-[#EF4444] text-xs font-medium bg-[#FFF5F5] p-3 rounded-[10px] border border-[#FFE8E8]"></div>
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
-                        <input type="text" id="huesped-nombre" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <label class="block text-xs font-semibold text-[#64748B] mb-1">Nombre Completo</label>
+                        <input type="text" id="huesped-nombre" required class="control-input w-full">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">DNI</label>
-                        <input type="number" id="huesped-dni" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <label class="block text-xs font-semibold text-[#64748B] mb-1">DNI</label>
+                        <input type="number" id="huesped-dni" required class="control-input w-full">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Habitación a Asignar</label>
-                        <select id="huesped-hab" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-slate-50"></select>
+                        <label class="block text-xs font-semibold text-[#64748B] mb-1">Habitación a Asignar</label>
+                        <select id="huesped-hab" required class="control-select w-full"></select>
                     </div>
                     
-                    <div class="col-span-2 border-t border-slate-100 pt-3 mt-1">
-                        <label class="block text-sm font-medium text-slate-700 mb-1">Fecha de Ingreso</label>
+                    <div class="col-span-2 border-t border-[#EDF2F7] pt-3 mt-1">
+                        <label class="block text-xs font-semibold text-[#64748B] mb-1">Fecha de Ingreso</label>
                         <div class="flex items-center gap-3">
-                            <input type="date" id="huesped-in" required class="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                            <label class="flex items-center gap-2 text-sm font-medium text-slate-700 cursor-pointer bg-slate-100 px-4 py-2 border border-slate-200 rounded-lg hover:bg-slate-200 transition select-none">
-                                <input type="checkbox" id="check-hoy" class="rounded text-blue-600 focus:ring-blue-500 w-4 h-4 cursor-pointer">
-                                Marcar fecha actual
+                            <input type="date" id="huesped-in" required class="control-input flex-1">
+                            <label class="flex items-center gap-2 text-xs font-medium text-[#64748B] cursor-pointer bg-[#F8FAFC] px-3 py-2 border border-[#E2E8F0] rounded-[10px] hover:bg-[#E2E8F0] transition select-none">
+                                <input type="checkbox" id="check-hoy" class="rounded text-[#0084FF] focus:ring-[#0084FF] w-4 h-4 cursor-pointer">
+                                Fecha actual
                             </label>
                         </div>
                     </div>
                 </div>
 
-                <div class="flex gap-3 pt-4 mt-2 border-t border-slate-100">
-                    <button type="button" class="btn-close-modal flex-1 px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition font-medium">Cancelar</button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition font-medium shadow-md">Registrar Huésped</button>
+                <div class="flex gap-3 pt-3 border-t border-[#EDF2F7]">
+                    <button type="button" class="btn-close-modal flex-1 px-4 py-2.5 bg-[#F8FAFC] text-[#64748B] hover:bg-[#E2E8F0] rounded-[10px] transition font-semibold text-xs border border-[#E2E8F0]">Cancelar</button>
+                    <button type="submit" class="btn-primary-pill flex-1 justify-center py-2.5 text-xs">Registrar Huésped</button>
                 </div>
             </form>
         </div>
     </div>
 
     <!-- Modal: Nuevo Usuario (Admin) -->
-    <div id="modal-add-user" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden fade-in">
-            <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-purple-50">
-                <h3 class="font-bold text-purple-900 text-lg">Gestión de Usuario</h3>
-                <button type="button" class="btn-close-modal text-slate-400 hover:text-slate-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+    <div id="modal-add-user" class="hidden fixed inset-0 z-50 bg-[#1E293B]/40 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="popover-modal w-full max-w-md fade-in">
+            <div class="px-6 py-4 border-b border-[#EDF2F7] flex justify-between items-center bg-[#F8FAFC]">
+                <h3 class="font-bold text-[#1E293B] text-base">Gestión de Usuario</h3>
+                <button type="button" class="btn-close-modal text-[#94A3B8] hover:text-[#1E293B] transition"><svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg></button>
             </div>
             <form id="form-add-user" class="p-6 space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Nombre Completo</label>
-                    <input type="text" id="user-nombre" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                    <label class="block text-xs font-semibold text-[#64748B] mb-1">Nombre Completo</label>
+                    <input type="text" id="user-nombre" required class="control-input w-full">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">DNI (Usuario de acceso)</label>
-                    <input type="number" id="user-dni" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                    <label class="block text-xs font-semibold text-[#64748B] mb-1">DNI (Usuario de acceso)</label>
+                    <input type="number" id="user-dni" required class="control-input w-full">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Contraseña</label>
-                    <input type="text" id="user-pass" required class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                    <label class="block text-xs font-semibold text-[#64748B] mb-1">Contraseña</label>
+                    <input type="text" id="user-pass" required class="control-input w-full">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Rol en el sistema</label>
-                    <select id="user-rol" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-purple-500 outline-none">
+                    <label class="block text-xs font-semibold text-[#64748B] mb-1">Rol en el Sistema</label>
+                    <select id="user-rol" class="control-select w-full">
                         <option value="USER">Recepción (USER)</option>
                         <option value="ADMIN">Administrador (ADMIN)</option>
                     </select>
                 </div>
-                <div class="flex gap-3 pt-4 mt-2 border-t border-slate-100">
-                    <button type="button" class="btn-close-modal flex-1 px-4 py-2 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition font-medium">Cancelar</button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition font-medium shadow-md">Guardar Usuario</button>
+                <div class="flex gap-3 pt-3 border-t border-[#EDF2F7]">
+                    <button type="button" class="btn-close-modal flex-1 px-4 py-2.5 bg-[#F8FAFC] text-[#64748B] hover:bg-[#E2E8F0] rounded-[10px] transition font-semibold text-xs border border-[#E2E8F0]">Cancelar</button>
+                    <button type="submit" class="btn-coral-pill flex-1 justify-center py-2.5 text-xs">Guardar Usuario</button>
                 </div>
             </form>
         </div>
