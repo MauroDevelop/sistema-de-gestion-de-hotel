@@ -10,6 +10,7 @@ import habitacionRoutes from './routes/habitacion.routes.js';
 import huespedRoutes from './routes/huesped.routes.js';
 import usuarioRoutes from './routes/usuario.routes.js';
 import logRoutes from './routes/log.routes.js';
+import { HabitacionController } from './controllers/habitacion.controller.js';
 
 dotenv.config();
 
@@ -32,6 +33,12 @@ app.use('/api/login', authRoutes);
 app.use('/habitaciones', habitacionRoutes);
 app.use('/api/habitaciones', habitacionRoutes);
 
+// Rutas de catálogo de características premeditadas
+app.get('/caracteristicas', HabitacionController.getCatalogo);
+app.get('/api/caracteristicas', HabitacionController.getCatalogo);
+app.post('/caracteristicas', HabitacionController.addCatalogo);
+app.post('/api/caracteristicas', HabitacionController.addCatalogo);
+
 app.use('/huespedes', huespedRoutes);
 app.use('/api/huespedes', huespedRoutes);
 
@@ -49,7 +56,6 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 
-// Inicializa la base de datos automáticamente e inicia el servidor HTTP
 initDatabase().then(() => {
     app.listen(PORT, () => {
         console.log(`Servidor backend ejecutándose en el puerto ${PORT}`);

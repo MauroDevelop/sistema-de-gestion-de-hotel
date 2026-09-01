@@ -1,57 +1,57 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
 :root {
-  /* Surface Colors */
-  --bg-canvas: #F8FAFC;
-  --bg-card: #FFFFFF;
-  --bg-card-alt: #F8FAFC;
-  --bg-active-coral: #FFF5F5;
-  --bg-dropdown-active: #EBF3FF;
-  --bg-dropdown-hover: #F8FAFC;
+  /* Surface Colors (Paleta Casal #315762 y Gallery #EFEFEF) */
+  --bg-canvas: #EFEFEF;          /* Gallery background (#EFEFEF) */
+  --bg-card: #FFFFFF;            /* Blanco puro para tarjetas */
+  --bg-card-alt: #EFEFEF;        /* Gallery neutral */
+  --bg-active-coral: #EBF2F4;    /* Tono claro de Casal */
+  --bg-dropdown-active: #D9E5E8;
+  --bg-dropdown-hover: #F4F7F8;
 
   /* Text Colors */
-  --text-primary: #1E293B;
-  --text-secondary: #64748B;
-  --text-tertiary: #94A3B8;
-  --text-disabled: #CBD5E1;
+  --text-primary: #182C32;       /* Casal Oscuro profundo */
+  --text-secondary: #315762;     /* Casal Base */
+  --text-tertiary: #5B828D;      /* Casal Medio */
+  --text-disabled: #A5C0C7;
   --text-inverse: #FFFFFF;
-  --text-brand-active: #FF5A5F;
+  --text-brand-active: #315762;   /* Casal Accent */
 
   /* Brand Colors */
-  --brand-primary-blue: #0084FF;
-  --brand-primary-blue-hover: #0073E6;
-  --brand-primary-coral: #FF5A5F;
-  --brand-primary-coral-subtle: #FFE8E8;
+  --brand-primary-blue: #315762;        /* Casal (HEX 315762) */
+  --brand-primary-blue-hover: #223F47;  /* Casal Oscuro */
+  --brand-primary-coral: #315762;       /* Casal Principal */
+  --brand-primary-coral-subtle: #EBF2F4;
 
   /* Semantic Colors */
-  --semantic-success: #22C55E;
-  --semantic-warning: #F59E0B;
-  --semantic-danger: #EF4444;
-  --semantic-info: #06B6D4;
+  --semantic-success: #225C4B;
+  --semantic-warning: #855B1E;
+  --semantic-danger: #7A2828;
+  --semantic-info: #315762;
 
   /* Borders */
-  --border-subtle: #EDF2F7;
-  --border-control: #E2E8F0;
-  --border-focus: #0084FF;
+  --border-subtle: #D9E1E3;      /* Borde sutil derivado de Gallery/Casal */
+  --border-control: #C2D1D5;     /* Borde controles */
+  --border-focus: #315762;       /* Casal foco */
 
-  /* Radii */
-  --radius-badge: 6px;
-  --radius-input: 10px;
-  --radius-button-full: 9999px;
-  --radius-button-rounded: 10px;
-  --radius-card: 16px;
-  --radius-popover: 16px;
+  /* Radii (Estricto: 2% ~ 2px - 3px max) */
+  --radius-badge: 2px;
+  --radius-input: 3px;
+  --radius-button-full: 3px;
+  --radius-button-rounded: 3px;
+  --radius-card: 3px;
+  --radius-popover: 3px;
 
   /* Shadows */
-  --shadow-card-soft: 0 4px 20px -2px rgba(148, 163, 184, 0.12), 0 2px 6px -1px rgba(148, 163, 184, 0.08);
-  --shadow-card-interactive: 0 8px 30px -4px rgba(148, 163, 184, 0.18);
-  --shadow-popover-floating: 0 20px 40px -8px rgba(30, 41, 59, 0.15), 0 0 1px 1px rgba(226, 232, 240, 0.6);
-  --shadow-inner-focus: 0 0 0 3px rgba(0, 132, 255, 0.2);
+  --shadow-card-soft: 0 1px 4px rgba(49, 87, 98, 0.08);
+  --shadow-card-interactive: 0 4px 12px rgba(49, 87, 98, 0.12);
+  --shadow-popover-floating: 0 8px 24px rgba(24, 44, 50, 0.15), 0 0 0 1px rgba(217, 225, 227, 0.8);
+  --shadow-inner-focus: 0 0 0 2px rgba(49, 87, 98, 0.25);
 }
 
 body, html {
   font-family: 'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  background-color: var(--bg-card-alt);
+  background-color: var(--bg-canvas);
   color: var(--text-primary);
   margin: 0;
   padding: 0;
@@ -62,16 +62,16 @@ body, html {
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: var(--bg-card-alt); }
-::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+::-webkit-scrollbar-track { background: var(--bg-canvas); }
+::-webkit-scrollbar-thumb { background: #C2D1D5; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-tertiary); }
 
 /* Animations */
 .fade-in {
-  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: fadeIn 0.15s ease-out;
 }
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(2px); }
+  from { opacity: 0; transform: translateY(1px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -79,7 +79,7 @@ body, html {
 #app-container {
   width: 100vw;
   height: 100vh;
-  background-color: var(--bg-card-alt);
+  background-color: var(--bg-canvas);
   display: flex;
   flex-direction: column;
   margin: 0;
@@ -91,9 +91,9 @@ body, html {
 
 /* Topbar Header Navigation */
 .topbar {
-  height: 72px;
-  background-color: var(--bg-card);
-  border-bottom: 1px solid var(--border-subtle);
+  height: 68px;
+  background-color: #FFFFFF;
+  border-bottom: 2px solid var(--border-subtle);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -107,34 +107,35 @@ body, html {
 .topbar-nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 /* Navigation Links */
 .nav-btn {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 18px;
+  gap: 8px;
+  padding: 8px 16px;
   border-radius: var(--radius-button-rounded);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
   background-color: transparent;
   border: 1px solid transparent;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   cursor: pointer;
   white-space: nowrap;
 }
 
 .nav-btn svg {
   color: var(--text-tertiary);
-  transition: color 0.2s ease;
+  transition: color 0.15s ease;
 }
 
 .nav-btn:hover {
   background-color: var(--bg-dropdown-hover);
   color: var(--text-primary);
+  border-color: var(--border-subtle);
 }
 
 .nav-btn:hover svg {
@@ -142,37 +143,38 @@ body, html {
 }
 
 .nav-btn.active, .nav-btn[data-active="true"] {
-  background-color: var(--bg-active-coral);
-  color: var(--text-brand-active);
-  font-weight: 600;
-  border-color: rgba(255, 90, 95, 0.15);
+  background-color: var(--brand-primary-blue);
+  color: #FFFFFF;
+  font-weight: 700;
+  border-color: var(--brand-primary-blue);
 }
 
 .nav-btn.active svg, .nav-btn[data-active="true"] svg {
-  color: var(--text-brand-active);
+  color: #FFFFFF;
 }
 
 /* Soft Cards & KPI Components */
 .soft-card {
-  background-color: var(--bg-card);
+  background-color: #FFFFFF;
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card-soft);
   border: 1px solid var(--border-subtle);
-  padding: 20px;
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  padding: 18px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .soft-card:hover {
   box-shadow: var(--shadow-card-interactive);
+  border-color: var(--border-control);
 }
 
 .kpi-title {
-  font-size: 13px;
-  font-weight: 600;
-  line-height: 18px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
   color: var(--text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
 }
 
 .kpi-value {
@@ -188,56 +190,54 @@ body, html {
   background-color: var(--brand-primary-blue);
   color: var(--text-inverse);
   border-radius: var(--radius-button-full);
-  padding: 9px 22px;
+  padding: 8px 18px;
   font-size: 13px;
-  font-weight: 600;
-  border: none;
-  box-shadow: 0 4px 12px rgba(0, 132, 255, 0.35);
+  font-weight: 700;
+  border: 1px solid var(--brand-primary-blue-hover);
+  box-shadow: 0 2px 4px rgba(49, 87, 98, 0.2);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .btn-primary-pill:hover {
   background-color: var(--brand-primary-blue-hover);
-  box-shadow: 0 6px 16px rgba(0, 132, 255, 0.45);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(49, 87, 98, 0.3);
 }
 
 .btn-coral-pill {
   background-color: var(--brand-primary-coral);
   color: var(--text-inverse);
   border-radius: var(--radius-button-full);
-  padding: 9px 22px;
+  padding: 8px 18px;
   font-size: 13px;
-  font-weight: 600;
-  border: none;
-  box-shadow: 0 4px 12px rgba(255, 90, 95, 0.35);
+  font-weight: 700;
+  border: 1px solid var(--brand-primary-blue-hover);
+  box-shadow: 0 2px 4px rgba(49, 87, 98, 0.2);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .btn-coral-pill:hover {
-  background-color: #E0484D;
-  box-shadow: 0 6px 16px rgba(255, 90, 95, 0.45);
-  transform: translateY(-1px);
+  background-color: var(--brand-primary-blue-hover);
+  box-shadow: 0 4px 8px rgba(49, 87, 98, 0.3);
 }
 
 /* Inputs & Controls */
 .control-input {
   border: 1px solid var(--border-control);
-  background-color: var(--bg-card);
+  background-color: #FFFFFF;
   border-radius: var(--radius-input);
-  padding: 8px 14px;
+  padding: 8px 12px;
   font-size: 13px;
   color: var(--text-primary);
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .control-input:focus {
@@ -247,15 +247,15 @@ body, html {
 
 .control-select {
   border: 1px solid var(--border-control);
-  background-color: var(--bg-card-alt);
+  background-color: #FFFFFF;
   border-radius: var(--radius-input);
-  padding: 8px 14px;
+  padding: 8px 12px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--text-secondary);
   outline: none;
   cursor: pointer;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.15s ease;
 }
 
 .control-select:focus {
@@ -265,42 +265,43 @@ body, html {
 /* Badges */
 .badge-status {
   border-radius: var(--radius-badge);
-  padding: 3px 10px;
+  padding: 3px 8px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .badge-success {
-  background-color: #DCFCE7;
-  color: #15803D;
-  border: 1px solid #BBF7D0;
+  background-color: #EBF4F0;
+  color: #1E5243;
+  border: 1px solid #C4E0D6;
 }
 
 .badge-danger {
-  background-color: #FEE2E2;
-  color: #B91C1C;
-  border: 1px solid #FECACA;
+  background-color: #F8EAEA;
+  color: #7A2828;
+  border: 1px solid #E8C4C4;
 }
 
 .badge-info {
-  background-color: #E0F2FE;
-  color: #0369A1;
-  border: 1px solid #BAE6FD;
+  background-color: #EBF2F4;
+  color: #315762;
+  border: 1px solid #C2D1D5;
 }
 
 .badge-purple {
-  background-color: #F3E8FF;
-  color: #6B21A8;
-  border: 1px solid #E9D5FF;
+  background-color: #315762;
+  color: #FFFFFF;
+  border: 1px solid #223F47;
 }
 
 /* Floating Popovers & Modals */
 .popover-modal {
-  background-color: var(--bg-card);
+  background-color: #FFFFFF;
   border-radius: var(--radius-popover);
   box-shadow: var(--shadow-popover-floating);
   border: 1px solid var(--border-subtle);
   overflow: hidden;
 }
+

@@ -26,7 +26,6 @@ export class HabitacionController {
                 return res.status(400).json({ message: 'El ID de habitación ya existe' });
             }
 
-            // Genera ID si no viene especificado
             let newId = id;
             if (!newId) {
                 const all = await RoomRepository.getAll();
@@ -49,6 +48,30 @@ export class HabitacionController {
         }
     }
 
+    // PUT /api/habitaciones/:id
+    static async update(req, res) {
+        try {
+            const id = parseInt(req.params.id);
+            const { tipo, precio, estado, caracteristicas } = req.body;
+            
+            const ok = await RoomRepository.update(id, {
+                tipo,
+                precio: Number(precio),
+                estado,
+                caracteristicas: caracteristicas || []
+            });
+
+            if (!ok) {
+                return res.status(404).json({ message: 'Habitación no encontrada' });
+            }
+
+            await LogRepository.create('Admin', `Modificación de datos de habitación #${id}`);
+            return res.status(200).json({ success: true, message: 'Habitación actualizada' });
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
     // DELETE /api/habitaciones/:id
     static async delete(req, res) {
         try {
@@ -61,6 +84,31 @@ export class HabitacionController {
 
             await LogRepository.create('Admin', `Eliminación de habitación #${id}`);
             return res.status(200).json({ message: 'Habitación eliminada correctamente' });
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+    // GET /api/caracteristicas (Catálogo premeditado)
+    static async getCatalogo(req, res) {
+        try {
+            const data = await RoomRepository.getCatalogoCaracteristicas();
+            return res.status(200).json(data);
+        } catch (error) {
+            return res.status(500).json({ message: error.message });
+        }
+    }
+
+    // POST /api/caracteristicas (Añadir al catálogo premeditado)
+    static async addCatalogo(req, res) {
+        try {
+            const { nombre } = req.body;
+            if (!nombre || !nombre.trim()) {
+                return res.status(400).json({ message: 'El nombre de la característica es obligatorio' });
+            }
+            const created = await RoomRepository.addCaracteristicaCatalogo(nombre.trim());
+            await LogRepository.create('Admin', `Nueva característica añadida al catálogo: ${nombre.trim()}`);
+            return res.status(201).json(created);
         } catch (error) {
             return res.status(500).json({ message: error.message });
         }

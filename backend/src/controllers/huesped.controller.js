@@ -12,28 +12,44 @@ export class HuespedController {
         }
     }
 
-    // POST /api/huespedes
+    // POST /api/huespedes (Check-in)
     static async create(req, res) {
         try {
-            const { nombre, dni, habitacion_id, ingreso, salida, comida, descuento } = req.body;
+            const { nombre, dni, direccion, posee_vehiculo, vehiculo_modelo, patente, habitacion_id, ingreso, salida } = req.body;
 
             if (!nombre || !dni || !habitacion_id || !ingreso) {
-                return res.status(400).json({ message: 'Nombre, DNI, habitación y fecha de ingreso son requeridos.' });
+                return res.status(400).json({ message: 'Nombre, DNI, Habitación y Fecha de Llegada son requeridos.' });
             }
 
             const result = await HuespedRepository.createHuespedConReserva({
                 nombre,
                 dni,
+                direccion,
+                posee_vehiculo,
+                vehiculo_modelo,
+                patente,
                 habitacion_id: Number(habitacion_id),
                 ingreso,
-                salida,
-                comida,
-                descuento: Number(descuento) || 0
+                salida
             });
 
-            await LogRepository.create('Recepcion', `Registro de huésped: ${nombre} (Hab. ${habitacion_id})`);
+            await LogRepository.create('Recepcion', `Check-in de huésped: ${nombre} (Hab. #${habitacion_id})`);
 
             return res.status(201).json(result);
+        } catch (error) {
+            return res.status(400).json({ message: error.message });
+        }
+    }
+
+    // POST /api/huespedes/checkout/:id
+    static async checkout(req, res) {
+        try {
+            const id = parseInt(req.params.id);
+            const result = await HuespedRepository.checkoutHuesped(id);
+            
+            await LogRepository.create('Recepcion', `Check-out realizado: ${result.huesped} (Hab. #${result.habitacion_id})`);
+
+            return res.status(200).json(result);
         } catch (error) {
             return res.status(400).json({ message: error.message });
         }

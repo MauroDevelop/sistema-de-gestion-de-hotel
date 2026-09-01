@@ -1,9 +1,9 @@
 import { api } from './api.js';
 
 export const auth = {
-    login: async (dni, pass) => {
+    login: async (dni, usuario, pass) => {
         try {
-            const user = await api.login(dni, pass);
+            const user = await api.login(dni, usuario, pass);
             if (user) {
                 localStorage.setItem('hotel_token', encodeURIComponent(JSON.stringify(user)));
                 return true;
@@ -26,7 +26,7 @@ export const auth = {
         document.querySelectorAll('.app-page').forEach(p => p.classList.add('hidden'));
         
         // 3. Ocultar modales flotantes (cerrar diálogos abiertos)
-        const modals = ['modal-add-room', 'modal-room-details', 'modal-add-huesped', 'modal-add-user'];
+        const modals = ['modal-add-room', 'modal-room-details', 'modal-add-huesped', 'modal-add-user', 'modal-add-articulo', 'modal-add-catalogo', 'modal-confirm-delete'];
         modals.forEach(id => {
             const m = document.getElementById(id);
             if (m) m.classList.add('hidden');
