@@ -266,12 +266,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Cerrar Modales
         if (e.target.closest('.btn-close-modal')) {
-            e.target.closest('.fixed.inset-0').classList.add('hidden');
+            const modalEl = e.target.closest('.fixed.inset-0');
+            if (modalEl && modalEl.id !== 'login-container') {
+                modalEl.classList.add('hidden');
+            }
         }
     });
 
-    // Cerrar modal al hacer clic en el backdrop
+    // Cerrar modal al hacer clic en el backdrop (excepto la pantalla de login)
     document.querySelectorAll('.fixed.inset-0').forEach(modal => {
+        if (modal.id === 'login-container') return;
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.add('hidden');
         });
