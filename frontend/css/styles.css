@@ -89,6 +89,10 @@ body, html {
   box-shadow: none;
 }
 
+#app-container.hidden {
+  display: none !important;
+}
+
 /* Topbar Header Navigation */
 .topbar {
   height: 68px;
