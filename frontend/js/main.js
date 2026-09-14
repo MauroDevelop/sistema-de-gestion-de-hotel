@@ -85,6 +85,240 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // ===================================================
+    // CONTROL DEL WIZARD DE CHECK-IN (PASO 1 Y PASO 2)
+    // ===================================================
+
+    // Cálculo automático de noches y precio total
+    function calcularTarifasReserva() {
+        const checkinVal = document.getElementById('huesped-checkin')?.value;
+        const checkoutVal = document.getElementById('huesped-checkout')?.value;
+        const habSelect = document.getElementById('huesped-hab');
+        if (!checkinVal || !checkoutVal || !habSelect) return;
+
+        const start = new Date(checkinVal);
+        const end = new Date(checkoutVal);
+        let diffMs = end - start;
+        let noches = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        if (isNaN(noches) || noches < 1) noches = 1;
+
+        const opt = habSelect.options[habSelect.selectedIndex];
+        const precioNoche = opt ? (Number(opt.dataset.precio) || 0) : 0;
+        const precioTotal = noches * precioNoche;
+
+        const tarifaEl = document.getElementById('reserva-tarifa-noche');
+        const nochesEl = document.getElementById('reserva-noches-calc');
+        const totalEl = document.getElementById('reserva-precio-total');
+
+        if (tarifaEl) tarifaEl.textContent = `$${precioNoche.toLocaleString('es-AR')}`;
+        if (nochesEl) nochesEl.textContent = `${noches} noche${noches > 1 ? 's' : ''}`;
+        if (totalEl) totalEl.textContent = `$${precioTotal.toLocaleString('es-AR')}`;
+    }
+
+    // Inyección de filas dinámicas de acompañantes
+    function agregarFilaAcompanante(datos = {}) {
+        const contenedor = document.getElementById('lista-acompanantes');
+        if (!contenedor) return;
+
+        const div = document.createElement('div');
+        div.className = 'acomp-row grid grid-cols-1 sm:grid-cols-4 gap-2 p-2.5 bg-[#F4F7F8] rounded-[3px] border border-[#D9E1E3] items-center transition';
+        div.innerHTML = `
+            <div>
+                <input type="text" placeholder="Nombres *" value="${datos.nombres || ''}" class="acomp-nombres control-input w-full text-xs py-1.5 rounded-[2px]" required>
+            </div>
+            <div>
+                <input type="text" placeholder="Apellidos" value="${datos.apellidos || ''}" class="acomp-apellidos control-input w-full text-xs py-1.5 rounded-[2px]">
+            </div>
+            <div class="flex gap-1">
+                <select class="acomp-tipo-doc control-select text-xs py-1.5 rounded-[2px] w-20">
+                    <option value="DNI" ${datos.tipo_documento === 'DNI' ? 'selected' : ''}>DNI</option>
+                    <option value="Pasaporte" ${datos.tipo_documento === 'Pasaporte' ? 'selected' : ''}>Pasap.</option>
+                    <option value="Cédula" ${datos.tipo_documento === 'Cédula' ? 'selected' : ''}>Cédula</option>
+                </select>
+                <input type="text" placeholder="Documento *" value="${datos.numero_documento || ''}" class="acomp-doc control-input w-full text-xs py-1.5 rounded-[2px]" required>
+            </div>
+                <button type="button" class="btn-remove-acomp text-[#7A2828] hover:text-[#5C1E1E] p-1 rounded hover:bg-[#F8EAEA] transition text-xs font-bold flex items-center gap-1 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"></path></svg>
+                    <span>Quitar</span>
+                </button>
+            </div>
+        `;
+
+        div.querySelector('.acomp-nombres')?.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+        });
+        div.querySelector('.acomp-apellidos')?.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+        });
+        div.querySelector('.acomp-doc')?.addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/\D/g, '');
+        });
+
+        contenedor.appendChild(div);
+    }
+
+    // Sincronización de cantidad de acompañantes
+    function sincronizarFilasAcompanantes(cantidad) {
+        const contenedor = document.getElementById('lista-acompanantes');
+        if (!contenedor) return;
+        const actuales = contenedor.querySelectorAll('.acomp-row').length;
+        if (cantidad > actuales) {
+            for (let i = actuales; i < cantidad; i++) {
+                agregarFilaAcompanante();
+            }
+        } else if (cantidad < actuales) {
+            const filas = contenedor.querySelectorAll('.acomp-row');
+            for (let i = actuales - 1; i >= cantidad; i--) {
+                filas[i].remove();
+            }
+        }
+    }
+
+    // Control de Flujo de Pasos en el Modal
+    function setHuespedStep(step) {
+        const step1 = document.getElementById('huesped-step-1');
+        const step2 = document.getElementById('huesped-step-2');
+        const tab1 = document.getElementById('step-tab-1');
+        const tab2 = document.getElementById('step-tab-2');
+        const badge1 = document.getElementById('step-badge-1');
+        const badge2 = document.getElementById('step-badge-2');
+        const errorDiv = document.getElementById('error-add-huesped');
+
+        if (errorDiv) errorDiv.classList.add('hidden');
+
+        if (step === 1) {
+            step1?.classList.remove('hidden');
+            step2?.classList.add('hidden');
+
+            if (tab1) tab1.className = 'py-3 px-4 border-b-2 border-[#315762] text-[#315762] flex items-center justify-center gap-2 transition-all cursor-pointer font-bold';
+            if (badge1) {
+                badge1.className = 'w-5 h-5 rounded-full bg-[#315762] text-white flex items-center justify-center text-[10px] font-bold';
+                badge1.textContent = '1';
+            }
+
+            if (tab2) tab2.className = 'py-3 px-4 border-b-2 border-transparent text-[#5B828D] flex items-center justify-center gap-2 transition-all cursor-pointer';
+            if (badge2) {
+                badge2.className = 'w-5 h-5 rounded-full bg-[#D9E1E3] text-[#5B828D] flex items-center justify-center text-[10px] font-bold';
+                badge2.textContent = '2';
+            }
+        } else {
+            step1?.classList.add('hidden');
+            step2?.classList.remove('hidden');
+
+            if (tab1) tab1.className = 'py-3 px-4 border-b-2 border-transparent text-[#5B828D] flex items-center justify-center gap-2 transition-all cursor-pointer';
+            if (badge1) {
+                badge1.className = 'w-5 h-5 rounded-full bg-[#225C4B] text-white flex items-center justify-center text-[10px] font-bold';
+                badge1.innerHTML = '&#10003;';
+            }
+
+            if (tab2) tab2.className = 'py-3 px-4 border-b-2 border-[#315762] text-[#315762] flex items-center justify-center gap-2 transition-all cursor-pointer font-bold';
+            if (badge2) {
+                badge2.className = 'w-5 h-5 rounded-full bg-[#315762] text-white flex items-center justify-center text-[10px] font-bold';
+                badge2.textContent = '2';
+            }
+
+            calcularTarifasReserva();
+        }
+    }
+
+    // Validación obligatoria del Paso 1 (Huésped Titular)
+    function validateHuespedStep1() {
+        const errorDiv = document.getElementById('error-add-huesped');
+        const nombres = (document.getElementById('huesped-nombres')?.value || '').trim();
+        const apellidos = (document.getElementById('huesped-apellidos')?.value || '').trim();
+        const dni = (document.getElementById('huesped-dni')?.value || '').trim();
+        const nacionalidad = (document.getElementById('huesped-nacionalidad')?.value || '').trim();
+        const nacimiento = document.getElementById('huesped-nacimiento')?.value;
+        const direccion = (document.getElementById('huesped-direccion')?.value || '').trim();
+        const telefono = (document.getElementById('huesped-telefono')?.value || '').trim();
+        const email = (document.getElementById('huesped-email')?.value || '').trim();
+
+        const soloLetrasRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
+
+        if (!nombres) {
+            errorDiv.textContent = 'Por favor, ingrese los Nombres completos del huésped titular.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-nombres')?.focus();
+            return false;
+        }
+        if (!soloLetrasRegex.test(nombres)) {
+            errorDiv.textContent = 'El nombre solo puede contener letras, sin números ni caracteres especiales.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-nombres')?.focus();
+            return false;
+        }
+        if (!apellidos) {
+            errorDiv.textContent = 'Por favor, ingrese los Apellidos completos del huésped titular.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-apellidos')?.focus();
+            return false;
+        }
+        if (!soloLetrasRegex.test(apellidos)) {
+            errorDiv.textContent = 'El apellido solo puede contener letras, sin números ni caracteres especiales.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-apellidos')?.focus();
+            return false;
+        }
+        if (!dni) {
+            errorDiv.textContent = 'Por favor, ingrese el Número de documento (DNI/Pasaporte).';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-dni')?.focus();
+            return false;
+        }
+        if (!/^\d+$/.test(dni)) {
+            errorDiv.textContent = 'El número de documento tiene que ser solo números sin caracteres ni letras.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-dni')?.focus();
+            return false;
+        }
+        if (!nacionalidad) {
+            errorDiv.textContent = 'Por favor, ingrese la Nacionalidad del huésped.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-nacionalidad')?.focus();
+            return false;
+        }
+        if (!nacimiento) {
+            errorDiv.textContent = 'Por favor, seleccione la Fecha de nacimiento.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-nacimiento')?.focus();
+            return false;
+        }
+        const anioNac = parseInt(nacimiento.split('-')[0], 10);
+        if (isNaN(anioNac) || anioNac < 1900 || anioNac > 2100) {
+            errorDiv.textContent = 'Fecha de nacimiento no valida.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-nacimiento')?.focus();
+            return false;
+        }
+        if (!direccion) {
+            errorDiv.textContent = 'Por favor, ingrese el Domicilio de residencia.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-direccion')?.focus();
+            return false;
+        }
+        if (!telefono) {
+            errorDiv.textContent = 'Por favor, ingrese un Teléfono de contacto.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-telefono')?.focus();
+            return false;
+        }
+        if (!/^\d+$/.test(telefono)) {
+            errorDiv.textContent = 'El teléfono no debe llevar letras ni caracteres, solo números.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-telefono')?.focus();
+            return false;
+        }
+        if (!email) {
+            errorDiv.textContent = 'Por favor, ingrese el Email del huésped.';
+            errorDiv.classList.remove('hidden');
+            document.getElementById('huesped-email')?.focus();
+            return false;
+        }
+
+        errorDiv.classList.add('hidden');
+        return true;
+    }
+
     // DELEGACIÓN DE EVENTOS CLICK
     document.addEventListener('click', async (e) => {
         // Logout
@@ -136,24 +370,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.closest('#btn-add-huesped')) {
             const select = document.getElementById('huesped-hab');
             const habs = await api.getHabitaciones();
-            const libres = habs.filter(h => h.estado === 'LIBRE');
+            const libres = habs.filter(h => h.estado === 'LIBRE' || h.estado === 'DISPONIBLE');
 
             if (libres.length === 0) {
                 select.innerHTML = '<option value="">No hay habitaciones libres para Check-in</option>';
             } else {
-                select.innerHTML = libres.map(h => `<option value="${h.id}">Hab. #${h.id} - ${h.tipo} ($${h.precio.toLocaleString('es-AR')}/noche)</option>`).join('');
+                select.innerHTML = libres.map(h => `<option value="${h.id}" data-precio="${h.precio}">Hab. #${h.id} - ${h.tipo} ($${h.precio.toLocaleString('es-AR')}/noche)</option>`).join('');
             }
 
-            // Autocompletar fecha de hoy para Check-in
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('huesped-in').value = hoy;
-            document.getElementById('huesped-out').value = '';
+            // Fechas por defecto: Check-in ahora, Check-out mañana a las 10:00 AM
+            const now = new Date();
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            tomorrow.setHours(10, 0, 0, 0);
 
-            document.getElementById('error-add-huesped').classList.add('hidden');
+            const formatDT = (d) => {
+                const pad = (n) => String(n).padStart(2, '0');
+                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+            };
+
             document.getElementById('form-add-huesped').reset();
-            document.getElementById('huesped-in').value = hoy;
-            document.getElementById('check-vehiculo').checked = false;
-            document.getElementById('vehiculo-inputs-zone').classList.add('hidden');
+            document.getElementById('huesped-checkin').value = formatDT(now);
+            document.getElementById('huesped-checkout').value = formatDT(tomorrow);
+            document.getElementById('huesped-nacionalidad').value = 'Argentina';
+            if (document.getElementById('huesped-personas')) document.getElementById('huesped-personas').value = '1';
+            if (document.getElementById('reserva-patente')) document.getElementById('reserva-patente').value = '';
+            if (document.getElementById('reserva-modelo')) document.getElementById('reserva-modelo').value = '';
+            document.getElementById('zone-acompanantes').classList.add('hidden');
+            document.getElementById('lista-acompanantes').innerHTML = '';
+            document.getElementById('dni-lookup-banner').classList.add('hidden');
+            document.getElementById('error-add-huesped').classList.add('hidden');
+
+            setHuespedStep(1);
+            calcularTarifasReserva();
             document.getElementById('modal-add-huesped').classList.remove('hidden');
         }
 
@@ -301,17 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Toggle de Campos de Vehículo en Registro de Huésped
-    document.getElementById('check-vehiculo').addEventListener('change', (e) => {
-        const zone = document.getElementById('vehiculo-inputs-zone');
-        if (e.target.checked) {
-            zone.classList.remove('hidden');
-        } else {
-            zone.classList.add('hidden');
-            document.getElementById('huesped-auto').value = '';
-            document.getElementById('huesped-patente').value = '';
-        }
-    });
+
 
     // Formulario Guardar/Editar Habitación (con Catálogo Premeditado)
     document.getElementById('form-add-room').addEventListener('submit', async (e) => {
@@ -387,27 +626,238 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) { alert(error.message); }
     });
 
+    // ===================================================
+    // LISTENERS DEL FORMULARIO Y WIZARD DE CHECK-IN
+    // ===================================================
+
+    // Restricciones de entrada en tiempo real (Nombres solo letras, DNI y Teléfono solo dígitos)
+    document.getElementById('huesped-nombres')?.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+    });
+    document.getElementById('huesped-apellidos')?.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]/g, '');
+    });
+    document.getElementById('huesped-dni')?.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+    document.getElementById('huesped-telefono')?.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '');
+    });
+
+    // Búsqueda y autocompletado automático al escribir o perder foco en el DNI
+    const dniInputHuesped = document.getElementById('huesped-dni');
+    dniInputHuesped?.addEventListener('blur', async () => {
+        const dniVal = (dniInputHuesped.value || '').trim();
+        if (dniVal.length < 5) return;
+
+        const spinner = document.getElementById('dni-spinner');
+        const banner = document.getElementById('dni-lookup-banner');
+        const bannerText = document.getElementById('dni-lookup-text');
+
+        spinner?.classList.remove('hidden');
+        const h = await api.buscarHuespedPorDni(dniVal);
+        spinner?.classList.add('hidden');
+
+        if (h) {
+            if (document.getElementById('huesped-nombres')) document.getElementById('huesped-nombres').value = h.nombres || '';
+            if (document.getElementById('huesped-apellidos')) document.getElementById('huesped-apellidos').value = h.apellidos || '';
+            if (document.getElementById('huesped-tipo-doc')) document.getElementById('huesped-tipo-doc').value = h.tipo_documento || 'DNI';
+            if (document.getElementById('huesped-nacionalidad')) document.getElementById('huesped-nacionalidad').value = h.nacionalidad || 'Argentina';
+            if (document.getElementById('huesped-nacimiento')) document.getElementById('huesped-nacimiento').value = h.fecha_nacimiento || '';
+            if (document.getElementById('huesped-direccion')) document.getElementById('huesped-direccion').value = h.direccion || '';
+            if (document.getElementById('huesped-telefono')) document.getElementById('huesped-telefono').value = h.telefono || '';
+            if (document.getElementById('huesped-email')) document.getElementById('huesped-email').value = h.email || '';
+            if (document.getElementById('reserva-patente')) document.getElementById('reserva-patente').value = h.patente || '';
+            if (document.getElementById('reserva-modelo')) document.getElementById('reserva-modelo').value = h.vehiculo_modelo || '';
+
+            if (banner && bannerText) {
+                bannerText.textContent = `✓ Huésped existente detectado (${h.nombres || h.nombre}). Se precargaron sus datos registrados.`;
+                banner.classList.remove('hidden');
+            }
+        }
+    });
+
+    // Botón para limpiar datos precargados
+    document.getElementById('btn-clear-preloaded-dni')?.addEventListener('click', () => {
+        document.getElementById('dni-lookup-banner')?.classList.add('hidden');
+        document.getElementById('huesped-nombres').value = '';
+        document.getElementById('huesped-apellidos').value = '';
+        document.getElementById('huesped-dni').value = '';
+        document.getElementById('huesped-nacimiento').value = '';
+        document.getElementById('huesped-direccion').value = '';
+        document.getElementById('huesped-telefono').value = '';
+        document.getElementById('huesped-email').value = '';
+        document.getElementById('reserva-patente').value = '';
+        document.getElementById('reserva-modelo').value = '';
+    });
+
+    // Habilitación automática de acompañantes al seleccionar 2 o más personas
+    const personasInput = document.getElementById('huesped-personas');
+    const handlePersonasChange = (e) => {
+        const cantPersonas = parseInt(e.target.value) || 1;
+        const zoneAcomp = document.getElementById('zone-acompanantes');
+        if (cantPersonas >= 2) {
+            zoneAcomp?.classList.remove('hidden');
+            sincronizarFilasAcompanantes(cantPersonas - 1);
+        } else {
+            zoneAcomp?.classList.add('hidden');
+            sincronizarFilasAcompanantes(0);
+        }
+    };
+    personasInput?.addEventListener('input', handlePersonasChange);
+    personasInput?.addEventListener('change', handlePersonasChange);
+
+    // Botón agregar fila de acompañante
+    document.getElementById('btn-add-acomp')?.addEventListener('click', () => {
+        agregarFilaAcompanante();
+    });
+
+    // Quitar fila de acompañante por delegación
+    document.getElementById('lista-acompanantes')?.addEventListener('click', (e) => {
+        const btnRemove = e.target.closest('.btn-remove-acomp');
+        if (btnRemove) {
+            const row = btnRemove.closest('.acomp-row');
+            if (row) row.remove();
+        }
+    });
+
+    // Recalcular tarifas cuando cambian fechas o habitación
+    document.getElementById('huesped-checkin')?.addEventListener('input', calcularTarifasReserva);
+    document.getElementById('huesped-checkout')?.addEventListener('input', calcularTarifasReserva);
+    document.getElementById('huesped-hab')?.addEventListener('change', calcularTarifasReserva);
+
+    // Navegación entre Pasos del Wizard
+    document.getElementById('btn-huesped-next')?.addEventListener('click', () => {
+        if (validateHuespedStep1()) {
+            setHuespedStep(2);
+        }
+    });
+
+    document.getElementById('btn-huesped-prev')?.addEventListener('click', () => {
+        setHuespedStep(1);
+    });
+
+    document.getElementById('step-tab-1')?.addEventListener('click', () => {
+        setHuespedStep(1);
+    });
+
+    document.getElementById('step-tab-2')?.addEventListener('click', () => {
+        if (validateHuespedStep1()) {
+            setHuespedStep(2);
+        }
+    });
+
     // Formulario Registrar Huésped / Check-in
     document.getElementById('form-add-huesped').addEventListener('submit', async (e) => {
         e.preventDefault();
         const errorDiv = document.getElementById('error-add-huesped');
         try {
-            const poseeVehiculo = document.getElementById('check-vehiculo').checked;
-            const habitacionId = parseInt(document.getElementById('huesped-hab').value);
-            if (!habitacionId) throw new Error('Debe seleccionar una habitación disponible.');
+            // Validar Paso 1
+            if (!validateHuespedStep1()) {
+                setHuespedStep(1);
+                return;
+            }
 
-            await api.addHuesped({
-                nombre: document.getElementById('huesped-nombre').value,
-                dni: document.getElementById('huesped-dni').value,
-                direccion: document.getElementById('huesped-direccion').value,
-                posee_vehiculo: poseeVehiculo,
-                vehiculo_modelo: poseeVehiculo ? document.getElementById('huesped-auto').value : '',
-                patente: poseeVehiculo ? document.getElementById('huesped-patente').value : '',
+            const habitacionId = parseInt(document.getElementById('huesped-hab')?.value);
+            if (!habitacionId) {
+                setHuespedStep(2);
+                throw new Error('Debe seleccionar una habitación disponible.');
+            }
+
+            const checkin = document.getElementById('huesped-checkin')?.value;
+            const checkout = document.getElementById('huesped-checkout')?.value;
+            if (!checkin || !checkout) {
+                setHuespedStep(2);
+                throw new Error('Debe especificar la fecha y hora de Check-in y Check-out.');
+            }
+
+            const patenteAuto = (document.getElementById('reserva-patente')?.value || '').trim().toUpperCase();
+            const modeloAuto = (document.getElementById('reserva-modelo')?.value || '').trim();
+            if (patenteAuto && !modeloAuto) {
+                setHuespedStep(2);
+                document.getElementById('reserva-modelo')?.focus();
+                throw new Error('Si ingresa la Patente del vehículo, debe ingresar obligatoriamente el Modelo o Marca.');
+            }
+            const poseeAuto = Boolean(patenteAuto || modeloAuto);
+            const cantPersonas = parseInt(document.getElementById('huesped-personas')?.value) || 1;
+
+            // Recolectar acompañantes si la cantidad de personas es 2 o más
+            const listaAcomps = [];
+            if (cantPersonas >= 2) {
+                const filas = document.querySelectorAll('#lista-acompanantes .acomp-row');
+                filas.forEach((f, idx) => {
+                    const nom = (f.querySelector('.acomp-nombres')?.value || '').trim();
+                    const ape = (f.querySelector('.acomp-apellidos')?.value || '').trim();
+                    const tipo = f.querySelector('.acomp-tipo-doc')?.value || 'DNI';
+                    const doc = (f.querySelector('.acomp-doc')?.value || '').trim();
+                    if (nom || doc) {
+                        if (!nom || !doc) {
+                            throw new Error(`Acompañante #${idx + 1}: Debe completar Nombre y Documento.`);
+                        }
+                        const soloLetrasRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$/;
+                        if (!soloLetrasRegex.test(nom)) {
+                            throw new Error(`Acompañante #${idx + 1}: El nombre solo puede contener letras, sin números ni caracteres especiales.`);
+                        }
+                        if (ape && !soloLetrasRegex.test(ape)) {
+                            throw new Error(`Acompañante #${idx + 1}: El apellido solo puede contener letras, sin números ni caracteres especiales.`);
+                        }
+                        if (!/^\d+$/.test(doc)) {
+                            throw new Error(`Acompañante #${idx + 1}: El número de documento tiene que ser solo números sin caracteres ni letras.`);
+                        }
+                        listaAcomps.push({
+                            nombres: nom,
+                            apellidos: ape,
+                            tipo_documento: tipo,
+                            numero_documento: doc
+                        });
+                    }
+                });
+            }
+
+            // Obtener tarifa y total
+            const habSelect = document.getElementById('huesped-hab');
+            const opt = habSelect.options[habSelect.selectedIndex];
+            const precioNoche = opt ? (Number(opt.dataset.precio) || 0) : 0;
+            const start = new Date(checkin);
+            const end = new Date(checkout);
+            let noches = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            if (isNaN(noches) || noches < 1) noches = 1;
+            const precioTotal = noches * precioNoche;
+
+            // Payload completo y atómico
+            const payload = {
+                nombres: document.getElementById('huesped-nombres').value.trim(),
+                apellidos: document.getElementById('huesped-apellidos').value.trim(),
+                nombre: `${document.getElementById('huesped-nombres').value.trim()} ${document.getElementById('huesped-apellidos').value.trim()}`.trim(),
+                tipo_documento: document.getElementById('huesped-tipo-doc').value,
+                numero_documento: document.getElementById('huesped-dni').value.trim(),
+                dni: document.getElementById('huesped-dni').value.trim(),
+                nacionalidad: document.getElementById('huesped-nacionalidad').value.trim(),
+                fecha_nacimiento: document.getElementById('huesped-nacimiento').value,
+                direccion: document.getElementById('huesped-direccion').value.trim(),
+                telefono: document.getElementById('huesped-telefono').value.trim(),
+                email: document.getElementById('huesped-email').value.trim(),
+                posee_vehiculo: poseeAuto,
+                vehiculo_modelo: modeloAuto,
+                patente: patenteAuto,
+                vehiculo_patente: patenteAuto,
                 habitacion_id: habitacionId,
-                ingreso: document.getElementById('huesped-in').value,
-                salida: document.getElementById('huesped-out').value || null
-            });
+                fecha_checkin: checkin,
+                fecha_checkout: checkout,
+                ingreso: checkin,
+                salida: checkout,
+                personas: cantPersonas,
+                adultos: cantPersonas,
+                ninos: 0,
+                acompanantes: listaAcomps,
+                precio_noche: precioNoche,
+                precio_total: precioTotal
+            };
+
+            await api.addHuesped(payload);
+
             document.getElementById('modal-add-huesped').classList.add('hidden');
+            setHuespedStep(1);
             render.huespedes();
             render.habitaciones();
         } catch (error) {

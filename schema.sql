@@ -21,17 +21,25 @@ create table usuario(
 
 create table huesped(
   id_huesped int auto_increment not null primary key,
-  nombre varchar(80) not null,
-  dni varchar(20) not null,
+  nombres varchar(80) not null,
+  apellidos varchar(80) not null,
+  nombre varchar(160) not null,
+  tipo_documento varchar(20) not null default 'DNI', -- 'DNI', 'Pasaporte', 'Cédula'
+  numero_documento varchar(30) not null,
+  dni varchar(30) not null,
+  nacionalidad varchar(50) not null default 'Argentina',
   fecha_nacimiento date null,
   telefono varchar(40) null,
+  email varchar(80) null,
   direccion varchar(120) null,
   posee_vehiculo boolean default false,
   vehiculo_modelo varchar(60) null,
   patente varchar(30) null,
   tarjeta_credito varchar(50) null,
   creado_por_id INT null,
-  foreign key (creado_por_id) references usuario(id_usuario)
+  fecha_registro datetime default current_timestamp,
+  foreign key (creado_por_id) references usuario(id_usuario),
+  unique key uq_huesped_doc (numero_documento)
 );
 
 create table caracteristicas_catalogo(
@@ -43,7 +51,7 @@ create table habitacion(
   nro_habitacion int primary key not null,
   tipo varchar(50) not null,
   cantidad_camas int not null default 1,
-  estado varchar(15) not null default 'LIBRE',
+  estado varchar(15) not null default 'LIBRE', -- 'LIBRE' / 'DISPONIBLE' / 'OCUPADA'
   precio_noche int not null,
   caracteristicas text null,
   creado_por_id INT null,
@@ -52,8 +60,12 @@ create table habitacion(
 
 create table reserva_data(
   id_reserva_data int auto_increment primary key not null,
-  inicio date,
-  fin date,
+  inicio datetime,
+  fin datetime,
+  adultos int not null default 1,
+  ninos int not null default 0,
+  precio_noche decimal(10,2) not null default 0.00,
+  precio_total decimal(10,2) not null default 0.00,
   comida varchar(50) default 'Ninguno',
   descuento int default 0,
   creado_por_id INT,
@@ -62,9 +74,10 @@ create table reserva_data(
 
 create table reserva(
   id_reserva int auto_increment primary key not null,
-  id_huesped int,
-  nro_habitacion int,
-  id_reserva_data int,
+  id_huesped int not null,
+  nro_habitacion int not null,
+  id_reserva_data int not null,
+  vehiculo_patente varchar(30) null,
   creado_por_id INT,
   fecha_registro datetime default current_timestamp,
   foreign key (creado_por_id) references usuario(id_usuario),
@@ -72,6 +85,22 @@ create table reserva(
   foreign key (nro_habitacion) references habitacion(nro_habitacion),
   foreign key (id_reserva_data) references reserva_data(id_reserva_data)
 );
+
+-- Tabla intermedia para acompañantes de una reserva
+create table reserva_acompanantes(
+  id int auto_increment primary key,
+  id_reserva int not null,
+  id_huesped int not null,
+  fecha_registro datetime default current_timestamp,
+  foreign key (id_reserva) references reserva(id_reserva) on delete cascade,
+  foreign key (id_huesped) references huesped(id_huesped) on delete cascade,
+  unique key uq_reserva_huesped (id_reserva, id_huesped)
+);
+
+-- Vistas para acceso con nombres plurales:
+create or replace view huespedes as select * from huesped;
+create or replace view habitaciones as select * from habitacion;
+create or replace view reservas as select * from reserva;
 
 create table pago(
   id_pago int auto_increment primary key,

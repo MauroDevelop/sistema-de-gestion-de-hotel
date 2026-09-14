@@ -116,6 +116,18 @@ export const api = {
         }
     },
 
+    buscarHuespedPorDni: async (dni) => {
+        try {
+            const clean = (dni || '').trim();
+            if (!clean) return null;
+            const res = await fetch(`${BASE_URL}/huespedes/buscar/${encodeURIComponent(clean)}`);
+            if (!res.ok) return null;
+            return await res.json();
+        } catch (e) {
+            return null;
+        }
+    },
+
     addHuesped: async (data) => {
         const res = await fetch(`${BASE_URL}/huespedes`, {
             method: 'POST',
