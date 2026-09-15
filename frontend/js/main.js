@@ -644,59 +644,13 @@ document.addEventListener('DOMContentLoaded', () => {
         e.target.value = e.target.value.replace(/\D/g, '');
     });
 
-    // Búsqueda y autocompletado automático al escribir o perder foco en el DNI
-    const dniInputHuesped = document.getElementById('huesped-dni');
-    dniInputHuesped?.addEventListener('blur', async () => {
-        const dniVal = (dniInputHuesped.value || '').trim();
-        if (dniVal.length < 5) return;
-
-        const spinner = document.getElementById('dni-spinner');
-        const banner = document.getElementById('dni-lookup-banner');
-        const bannerText = document.getElementById('dni-lookup-text');
-
-        spinner?.classList.remove('hidden');
-        const h = await api.buscarHuespedPorDni(dniVal);
-        spinner?.classList.add('hidden');
-
-        if (h) {
-            if (document.getElementById('huesped-nombres')) document.getElementById('huesped-nombres').value = h.nombres || '';
-            if (document.getElementById('huesped-apellidos')) document.getElementById('huesped-apellidos').value = h.apellidos || '';
-            if (document.getElementById('huesped-tipo-doc')) document.getElementById('huesped-tipo-doc').value = h.tipo_documento || 'DNI';
-            if (document.getElementById('huesped-nacionalidad')) document.getElementById('huesped-nacionalidad').value = h.nacionalidad || 'Argentina';
-            if (document.getElementById('huesped-nacimiento')) document.getElementById('huesped-nacimiento').value = h.fecha_nacimiento || '';
-            if (document.getElementById('huesped-direccion')) document.getElementById('huesped-direccion').value = h.direccion || '';
-            if (document.getElementById('huesped-telefono')) document.getElementById('huesped-telefono').value = h.telefono || '';
-            if (document.getElementById('huesped-email')) document.getElementById('huesped-email').value = h.email || '';
-            if (document.getElementById('reserva-patente')) document.getElementById('reserva-patente').value = h.patente || '';
-            if (document.getElementById('reserva-modelo')) document.getElementById('reserva-modelo').value = h.vehiculo_modelo || '';
-
-            if (banner && bannerText) {
-                bannerText.textContent = `✓ Huésped existente detectado (${h.nombres || h.nombre}). Se precargaron sus datos registrados.`;
-                banner.classList.remove('hidden');
-            }
-        }
-    });
-
-    // Botón para limpiar datos precargados
-    document.getElementById('btn-clear-preloaded-dni')?.addEventListener('click', () => {
-        document.getElementById('dni-lookup-banner')?.classList.add('hidden');
-        document.getElementById('huesped-nombres').value = '';
-        document.getElementById('huesped-apellidos').value = '';
-        document.getElementById('huesped-dni').value = '';
-        document.getElementById('huesped-nacimiento').value = '';
-        document.getElementById('huesped-direccion').value = '';
-        document.getElementById('huesped-telefono').value = '';
-        document.getElementById('huesped-email').value = '';
-        document.getElementById('reserva-patente').value = '';
-        document.getElementById('reserva-modelo').value = '';
-    });
 
     // Habilitación automática de acompañantes al seleccionar 2 o más personas
     const personasInput = document.getElementById('huesped-personas');
     const handlePersonasChange = (e) => {
         const cantPersonas = parseInt(e.target.value) || 1;
         const zoneAcomp = document.getElementById('zone-acompanantes');
-        if (cantPersonas >= 2) {
+        if (cantPersonas >= 2 && cantPersonas <= 10) {
             zoneAcomp?.classList.remove('hidden');
             sincronizarFilasAcompanantes(cantPersonas - 1);
         } else {

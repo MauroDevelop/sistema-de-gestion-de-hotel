@@ -523,11 +523,8 @@
 
                 <!-- PASO 1: Datos del Huésped Titular (Tabla huespedes) -->
                 <div id="huesped-step-1" class="space-y-4">
-                    <!-- Banner de detección de DNI existente -->
                     <div id="dni-lookup-banner"
                         class="hidden p-2.5 rounded-[3px] text-xs font-medium bg-[#EBF2F4] text-[#315762] border border-[#C2D1D5] flex items-center justify-between">
-                        <span id="dni-lookup-text">✓ Huésped existente detectado. Datos precargados
-                            automáticamente.</span>
                         <button type="button" id="btn-clear-preloaded-dni"
                             class="text-[11px] underline hover:text-[#182C32]">Limpiar</button>
                     </div>
@@ -844,10 +841,8 @@
                         <div class="md:col-span-2">
                             <label class="block text-xs font-semibold text-[#315762] mb-1">Cantidad de personas <span
                                     class="text-[#7A2828]">*</span></label>
-                            <input type="number" id="huesped-personas" min="1" value="1"
+                            <input type="number" id="huesped-personas" min="1" max="10" value="1"
                                 class="control-input w-full rounded-[3px]">
-                            <p class="text-[10px] text-[#5B828D] mt-0.5">Al indicar 2 o más personas, se habilita
-                                automáticamente la carga de acompañantes.</p>
                         </div>
 
                         <!-- Patente y Modelo de Auto (Opcionales por defecto; si se carga patente, modelo es obligatorio) -->
@@ -863,8 +858,6 @@
                                     </svg>
                                     <span class="text-xs font-bold text-[#182C32]">Datos del Vehículo (Opcional)</span>
                                 </div>
-                                <span class="text-[10px] text-[#5B828D]">Si ingresa patente, el modelo/marca es
-                                    obligatorio</span>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
