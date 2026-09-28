@@ -369,40 +369,28 @@ document.addEventListener('DOMContentLoaded', () => {
         // Abrir Modal Registrar Huésped / Check-in
         if (e.target.closest('#btn-add-huesped')) {
             const select = document.getElementById('huesped-hab');
-            const habs = await api.getHabitaciones();
-            const libres = habs.filter(h => h.estado === 'LIBRE' || h.estado === 'DISPONIBLE');
+            api.getHabitaciones().then(habs => {
+                const libres = habs.filter(h => h.estado === 'LIBRE');
+                if (libres.length === 0) {
+                    select.innerHTML = '<option value="">No hay habitaciones libres para Check-in</option>';
+                } else {
+                    select.innerHTML = libres.map(h => `<option value="${h.id}">Hab. #${h.id} - ${h.tipo} ($${h.precio.toLocaleString('es-AR')}/noche)</option>`).join('');
+                }
+            });
 
-            if (libres.length === 0) {
-                select.innerHTML = '<option value="">No hay habitaciones libres para Check-in</option>';
-            } else {
-                select.innerHTML = libres.map(h => `<option value="${h.id}" data-precio="${h.precio}">Hab. #${h.id} - ${h.tipo} ($${h.precio.toLocaleString('es-AR')}/noche)</option>`).join('');
-            }
-
-            // Fechas por defecto: Check-in ahora, Check-out mañana a las 10:00 AM
-            const now = new Date();
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(10, 0, 0, 0);
-
-            const formatDT = (d) => {
-                const pad = (n) => String(n).padStart(2, '0');
-                return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-            };
-
+            // Configuración dinámica del pre-llenado de fechas cronológicas
+            const hoy = new Date().toISOString().split('T')[0];
+            
+            // Programación defensiva para el saneamiento visual del modal
+            document.getElementById('error-add-huesped')?.classList.add('hidden');
             document.getElementById('form-add-huesped').reset();
-            document.getElementById('huesped-checkin').value = formatDT(now);
-            document.getElementById('huesped-checkout').value = formatDT(tomorrow);
-            document.getElementById('huesped-nacionalidad').value = 'Argentina';
-            if (document.getElementById('huesped-personas')) document.getElementById('huesped-personas').value = '1';
-            if (document.getElementById('reserva-patente')) document.getElementById('reserva-patente').value = '';
-            if (document.getElementById('reserva-modelo')) document.getElementById('reserva-modelo').value = '';
-            document.getElementById('zone-acompanantes').classList.add('hidden');
-            document.getElementById('lista-acompanantes').innerHTML = '';
-            document.getElementById('dni-lookup-banner').classList.add('hidden');
-            document.getElementById('error-add-huesped').classList.add('hidden');
-
-            setHuespedStep(1);
-            calcularTarifasReserva();
+            
+            document.getElementById('huesped-in').value = hoy;
+            document.getElementById('huesped-out').value = '';
+            document.getElementById('huesped-ocupantes').value = 1;
+            
+            document.getElementById('check-vehiculo').checked = false;
+            document.getElementById('vehiculo-inputs-zone').classList.add('hidden');
             document.getElementById('modal-add-huesped').classList.remove('hidden');
         }
 
@@ -439,12 +427,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // CONFIRMAR CHECK-OUT
         if (e.target.closest('#btn-confirm-checkout')) {
             const idReserva = parseInt(document.getElementById('checkout-reserva-id').value);
+            const metodoPago = document.getElementById('checkout-metodo-pago').value; // <-- Se captura el método
+            
             if (idReserva) {
                 try {
+                    // Cierra la reserva en el backend
                     await api.checkoutHuesped(idReserva);
+                    
                     document.getElementById('modal-checkout').classList.add('hidden');
+                    
+                    // Confirmación visual de cobro
+                    alert(`Pago mediante ${metodoPago} registrado. Check-out finalizado con éxito.`);
+                    
                     render.huespedes();
                     render.habitaciones();
+                    
+                    // Resetear el select para el próximo huésped
+                    document.getElementById('checkout-metodo-pago').selectedIndex = 0;
                 } catch (error) {
                     alert(error.message);
                 }
@@ -552,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // Formulario Guardar/Editar Habitación (con Catálogo Premeditado)
+// Formulario Guardar/Editar Habitación (con Catálogo Premeditado)
     document.getElementById('form-add-room').addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
@@ -561,27 +560,40 @@ document.addEventListener('DOMContentLoaded', () => {
             const tipo = document.getElementById('room-type').value;
             const precio = parseInt(document.getElementById('room-price').value);
 
-            // Obtener checkboxes seleccionados del catálogo premeditado
+            // Obtenemos los campos nuevos de forma local, pero NO los incluimos en el envío a la API aún.
+            const capacidad = document.getElementById('room-capacidad').value;
+
+            // Captura de contadores de camas
+            const cInd = parseInt(document.getElementById('bed-individual').value) || 0;
+            const cMat = parseInt(document.getElementById('bed-matrimonial').value) || 0;
+            const cExt = parseInt(document.getElementById('bed-extra')?.value) || 0;
+            let distribucionTexto = [];
+            if (cMat > 0) distribucionTexto.push(`${cMat} Matrimonial`);
+            if (cInd > 0) distribucionTexto.push(`${cInd} Individual`);
+            if (cExt > 0) distribucionTexto.push(`${cExt} Extra`);
+            const camas = distribucionTexto.join(' + '); // Dato formateado localmente
+
+            // Obtener checkboxes seleccionados del catálogo
             const selectedChars = Array.from(document.querySelectorAll('input[name="room-char-item"]:checked'))
                 .map(cb => cb.value);
 
+            // Solo enviamos los 4 parámetros originales soportados por la BD
             if (mode === 'EDIT') {
                 await api.updateHabitacion(id, {
-                    tipo,
-                    precio,
+                    tipo: tipo,
+                    precio: precio,
                     caracteristicas: selectedChars
                 });
             } else {
                 await api.addHabitacion({
-                    id,
-                    tipo,
-                    precio,
+                    tipo: tipo,
+                    precio: precio,
                     caracteristicas: selectedChars
                 });
             }
             document.getElementById('modal-add-room').classList.add('hidden');
             render.habitaciones();
-        } catch (error) { alert(error.message); }
+        } catch (error) { alert(`Error al guardar habitación: ${error.message}`); }
     });
 
     // Formulario Añadir Característica al Catálogo Premeditado
@@ -817,8 +829,10 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             errorDiv.textContent = error.message;
             errorDiv.classList.remove('hidden');
+        } else {
+            alert(error.message);
         }
-    });
+    };
 
     // Filtros de Habitaciones y Huéspedes
     const triggerHabFilters = () => {
