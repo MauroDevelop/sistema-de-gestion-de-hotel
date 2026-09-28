@@ -745,6 +745,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('Si ingresa la Patente del vehículo, debe ingresar obligatoriamente el Modelo o Marca.');
             }
             const poseeAuto = Boolean(patenteAuto || modeloAuto);
+
+            // Captura y validación de Tarjeta
+            const tarjetaNumero = (document.getElementById('huesped-tarjeta-numero')?.value || '').replace(/\s/g, '');
+            const tarjetaVenc = (document.getElementById('huesped-tarjeta-venc')?.value || '').trim();
+            
+            if (tarjetaNumero) {
+                if (!/^\d{13,19}$/.test(tarjetaNumero)) {
+                    setHuespedStep(2);
+                    document.getElementById('huesped-tarjeta-numero')?.focus();
+                    throw new Error('El número de tarjeta debe contener entre 13 y 19 dígitos numéricos.');
+                }
+                if (!tarjetaVenc || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(tarjetaVenc)) {
+                    setHuespedStep(2);
+                    document.getElementById('huesped-tarjeta-venc')?.focus();
+                    throw new Error('Debe ingresar un formato de vencimiento válido (MM/AA).');
+                }
+            }
+
             const cantPersonas = parseInt(document.getElementById('huesped-personas')?.value) || 1;
 
             // Recolectar acompañantes si la cantidad de personas es 2 o más
@@ -817,7 +835,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 ninos: 0,
                 acompanantes: listaAcomps,
                 precio_noche: precioNoche,
-                precio_total: precioTotal
+                precio_total: precioTotal,
+                tarjeta_numero: tarjetaNumero,
+                tarjeta_vencimiento: tarjetaVenc 
             };
 
             await api.addHuesped(payload);
@@ -829,10 +849,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             errorDiv.textContent = error.message;
             errorDiv.classList.remove('hidden');
-        } else {
-            alert(error.message);
         }
-    };
+    });
 
     // Filtros de Habitaciones y Huéspedes
     const triggerHabFilters = () => {

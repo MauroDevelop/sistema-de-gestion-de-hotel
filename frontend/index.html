@@ -929,6 +929,28 @@
                             </div>
                         </div>
 
+                        <!-- Datos de Tarjeta de Crédito/Débito (Garantía o Pago) -->
+                        <div class="md:col-span-2 bg-[#EBF2F4] p-3 rounded-[3px] border border-[#C2D1D5] mb-3">
+                            <div class="flex items-center justify-between mb-2">
+                                <div class="flex items-center gap-1.5">
+                                    <svg class="w-4 h-4 text-[#315762]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"></path>
+                                    </svg>
+                                    <span class="text-xs font-bold text-[#182C32]">Datos de Tarjeta (Garantía)</span>
+                                </div>
+                            </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div class="sm:col-span-2">
+                                <label class="block text-[11px] font-semibold text-[#315762] mb-1">Número de Tarjeta</label>
+                                <input type="text" id="huesped-tarjeta-numero" class="control-input w-full rounded-[3px] font-mono tracking-widest" placeholder="0000 0000 0000 0000" maxlength="19">
+                            </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-[#315762] mb-1">Vencimiento</label>
+                                    <input type="text" id="huesped-tarjeta-venc" class="control-input w-full rounded-[3px] font-mono text-center" placeholder="MM/AA" maxlength="5">
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Tarifas y Resumen Automático -->
                         <div
                             class="md:col-span-2 bg-[#F7FAFA] border border-[#D9E1E3] p-3 rounded-[3px] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
