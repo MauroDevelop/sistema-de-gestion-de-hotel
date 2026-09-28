@@ -1,4 +1,8 @@
-const BASE_URL = window.location.origin.includes('localhost') ? `${window.location.protocol}//${window.location.hostname}:3000/api` : '/api';
+// Agregue 'hotel.local' a la condición para enrutar directo al puerto 3000 en el Linux local, conservando la lógica de 'localhost' para el entorno de los demás.
+const BASE_URL = (window.location.origin.includes('localhost') || window.location.origin.includes('hotel.local')) ? `${window.location.protocol}//${window.location.hostname}:3000/api` : '/api';
+
+// dejo la linea original por si tienen problemas:
+// const BASE_URL = window.location.origin.includes('localhost') ? `${window.location.protocol}//${window.location.hostname}:3000/api` : '/api';
 
 let catalogoCache = [];
 

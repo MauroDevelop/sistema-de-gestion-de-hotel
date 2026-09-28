@@ -16,7 +16,7 @@ export class HuespedRepository {
                     hab.precio_noche AS precio_noche,
                     DATE_FORMAT(rd.inicio, '%Y-%m-%d') AS ingreso,
                     CASE WHEN rd.fin IS NOT NULL THEN DATE_FORMAT(rd.fin, '%Y-%m-%d') ELSE 'A definir' END AS salida,
-                    CASE WHEN hab.estado = 'OCUPADA' THEN 'CHECK-IN' ELSE 'CHECK-OUT' END AS estado
+                    CASE WHEN rd.fin <= CURDATE() THEN 'CHECK-OUT' ELSE 'CHECK-IN' END AS estado
              FROM reserva r
              JOIN huesped h ON r.id_huesped = h.id_huesped
              JOIN reserva_data rd ON r.id_reserva_data = rd.id_reserva_data

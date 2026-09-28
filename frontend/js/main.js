@@ -135,23 +135,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // Abrir Modal Registrar Huésped / Check-in
         if (e.target.closest('#btn-add-huesped')) {
             const select = document.getElementById('huesped-hab');
-            const habs = await api.getHabitaciones();
-            const libres = habs.filter(h => h.estado === 'LIBRE');
+            api.getHabitaciones().then(habs => {
+                const libres = habs.filter(h => h.estado === 'LIBRE');
+                if (libres.length === 0) {
+                    select.innerHTML = '<option value="">No hay habitaciones libres para Check-in</option>';
+                } else {
+                    select.innerHTML = libres.map(h => `<option value="${h.id}">Hab. #${h.id} - ${h.tipo} ($${h.precio.toLocaleString('es-AR')}/noche)</option>`).join('');
+                }
+            });
 
-            if (libres.length === 0) {
-                select.innerHTML = '<option value="">No hay habitaciones libres para Check-in</option>';
-            } else {
-                select.innerHTML = libres.map(h => `<option value="${h.id}">Hab. #${h.id} - ${h.tipo} ($${h.precio.toLocaleString('es-AR')}/noche)</option>`).join('');
-            }
-
-            // Autocompletar fecha de hoy para Check-in
+            // Configuración dinámica del pre-llenado de fechas cronológicas
             const hoy = new Date().toISOString().split('T')[0];
+            
+            // Programación defensiva para el saneamiento visual del modal
+            document.getElementById('error-add-huesped')?.classList.add('hidden');
+            document.getElementById('form-add-huesped').reset();
+            
             document.getElementById('huesped-in').value = hoy;
             document.getElementById('huesped-out').value = '';
-
-            document.getElementById('error-add-huesped').classList.add('hidden');
-            document.getElementById('form-add-huesped').reset();
-            document.getElementById('huesped-in').value = hoy;
+            document.getElementById('huesped-ocupantes').value = 1;
+            
             document.getElementById('check-vehiculo').checked = false;
             document.getElementById('vehiculo-inputs-zone').classList.add('hidden');
             document.getElementById('modal-add-huesped').classList.remove('hidden');
@@ -190,12 +193,23 @@ document.addEventListener('DOMContentLoaded', () => {
         // CONFIRMAR CHECK-OUT
         if (e.target.closest('#btn-confirm-checkout')) {
             const idReserva = parseInt(document.getElementById('checkout-reserva-id').value);
+            const metodoPago = document.getElementById('checkout-metodo-pago').value; // <-- Se captura el método
+            
             if (idReserva) {
                 try {
+                    // Cierra la reserva en el backend
                     await api.checkoutHuesped(idReserva);
+                    
                     document.getElementById('modal-checkout').classList.add('hidden');
+                    
+                    // Confirmación visual de cobro
+                    alert(`Pago mediante ${metodoPago} registrado. Check-out finalizado con éxito.`);
+                    
                     render.huespedes();
                     render.habitaciones();
+                    
+                    // Resetear el select para el próximo huésped
+                    document.getElementById('checkout-metodo-pago').selectedIndex = 0;
                 } catch (error) {
                     alert(error.message);
                 }
@@ -313,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Formulario Guardar/Editar Habitación (con Catálogo Premeditado)
+// Formulario Guardar/Editar Habitación (con Catálogo Premeditado)
     document.getElementById('form-add-room').addEventListener('submit', async (e) => {
         e.preventDefault();
         try {
@@ -322,27 +336,40 @@ document.addEventListener('DOMContentLoaded', () => {
             const tipo = document.getElementById('room-type').value;
             const precio = parseInt(document.getElementById('room-price').value);
 
-            // Obtener checkboxes seleccionados del catálogo premeditado
+            // Obtenemos los campos nuevos de forma local, pero NO los incluimos en el envío a la API aún.
+            const capacidad = document.getElementById('room-capacidad').value;
+
+            // Captura de contadores de camas
+            const cInd = parseInt(document.getElementById('bed-individual').value) || 0;
+            const cMat = parseInt(document.getElementById('bed-matrimonial').value) || 0;
+            const cExt = parseInt(document.getElementById('bed-extra')?.value) || 0;
+            let distribucionTexto = [];
+            if (cMat > 0) distribucionTexto.push(`${cMat} Matrimonial`);
+            if (cInd > 0) distribucionTexto.push(`${cInd} Individual`);
+            if (cExt > 0) distribucionTexto.push(`${cExt} Extra`);
+            const camas = distribucionTexto.join(' + '); // Dato formateado localmente
+
+            // Obtener checkboxes seleccionados del catálogo
             const selectedChars = Array.from(document.querySelectorAll('input[name="room-char-item"]:checked'))
                 .map(cb => cb.value);
 
+            // Solo enviamos los 4 parámetros originales soportados por la BD
             if (mode === 'EDIT') {
                 await api.updateHabitacion(id, {
-                    tipo,
-                    precio,
+                    tipo: tipo,
+                    precio: precio,
                     caracteristicas: selectedChars
                 });
             } else {
                 await api.addHabitacion({
-                    id,
-                    tipo,
-                    precio,
+                    tipo: tipo,
+                    precio: precio,
                     caracteristicas: selectedChars
                 });
             }
             document.getElementById('modal-add-room').classList.add('hidden');
             render.habitaciones();
-        } catch (error) { alert(error.message); }
+        } catch (error) { alert(`Error al guardar habitación: ${error.message}`); }
     });
 
     // Formulario Añadir Característica al Catálogo Premeditado
@@ -388,33 +415,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Formulario Registrar Huésped / Check-in
-    document.getElementById('form-add-huesped').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const errorDiv = document.getElementById('error-add-huesped');
-        try {
-            const poseeVehiculo = document.getElementById('check-vehiculo').checked;
-            const habitacionId = parseInt(document.getElementById('huesped-hab').value);
-            if (!habitacionId) throw new Error('Debe seleccionar una habitación disponible.');
+document.getElementById('form-add-huesped').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const errorDiv = document.getElementById('error-add-huesped');
+    try {
+        const poseeVehiculo = document.getElementById('check-vehiculo').checked;
+        const habitacionId = parseInt(document.getElementById('huesped-hab').value);
+        if (!habitacionId) throw new Error('Debe seleccionar una habitación disponible.');
 
-            await api.addHuesped({
-                nombre: document.getElementById('huesped-nombre').value,
-                dni: document.getElementById('huesped-dni').value,
-                direccion: document.getElementById('huesped-direccion').value,
-                posee_vehiculo: poseeVehiculo,
-                vehiculo_modelo: poseeVehiculo ? document.getElementById('huesped-auto').value : '',
-                patente: poseeVehiculo ? document.getElementById('huesped-patente').value : '',
-                habitacion_id: habitacionId,
-                ingreso: document.getElementById('huesped-in').value,
-                salida: document.getElementById('huesped-out').value || null
-            });
-            document.getElementById('modal-add-huesped').classList.add('hidden');
-            render.huespedes();
-            render.habitaciones();
-        } catch (error) {
+        // Solo enviamos los datos que la BD de tus compañeros soporta actualmente
+        await api.addHuesped({
+            nombre: document.getElementById('huesped-nombre').value,
+            dni: document.getElementById('huesped-dni').value,
+            direccion: document.getElementById('huesped-direccion').value,
+            posee_vehiculo: poseeVehiculo,
+            vehiculo_modelo: poseeVehiculo ? document.getElementById('huesped-auto').value : '',
+            patente: poseeVehiculo ? document.getElementById('huesped-patente').value : '',
+            habitacion_id: habitacionId,
+            ingreso: document.getElementById('huesped-in').value,
+            salida: document.getElementById('huesped-out').value || null
+        });
+        
+        document.getElementById('modal-add-huesped').classList.add('hidden');
+        render.huespedes();
+        render.habitaciones();
+    } catch (error) {
+        if (errorDiv) {
             errorDiv.textContent = error.message;
             errorDiv.classList.remove('hidden');
+        } else {
+            alert(error.message);
         }
-    });
+    }
+});
 
     // Filtros de Habitaciones y Huéspedes
     const triggerHabFilters = () => {
