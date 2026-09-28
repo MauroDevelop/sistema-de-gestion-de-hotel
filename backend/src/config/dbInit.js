@@ -122,16 +122,23 @@ export async function initDatabase() {
         `);
 
         // Migraciones dinámicas para columnas de huesped
-        const columnasHuesped = ['direccion', 'posee_vehiculo', 'vehiculo_modelo', 'patente', 'tarjeta_credito'];
+        const columnasHuesped = [
+            { name: 'nombres', type: 'VARCHAR(80) NULL' },
+            { name: 'apellidos', type: 'VARCHAR(80) NULL' },
+            { name: 'tipo_documento', type: "VARCHAR(20) NOT NULL DEFAULT 'DNI'" },
+            { name: 'numero_documento', type: 'VARCHAR(30) NULL' },
+            { name: 'nacionalidad', type: "VARCHAR(50) NOT NULL DEFAULT 'Argentina'" },
+            { name: 'email', type: 'VARCHAR(80) NULL' },
+            { name: 'direccion', type: 'VARCHAR(120) NULL' },
+            { name: 'posee_vehiculo', type: 'BOOLEAN DEFAULT FALSE' },
+            { name: 'vehiculo_modelo', type: 'VARCHAR(60) NULL' },
+            { name: 'patente', type: 'VARCHAR(30) NULL' },
+            { name: 'tarjeta_credito', type: 'VARCHAR(50) NULL' }
+        ];
         for (const col of columnasHuesped) {
-            const [check] = await dbConn.query(`SHOW COLUMNS FROM huesped LIKE ?`, [col]);
+            const [check] = await dbConn.query(`SHOW COLUMNS FROM huesped LIKE ?`, [col.name]);
             if (check.length === 0) {
-                let typeDef = 'VARCHAR(120) NULL';
-                if (col === 'posee_vehiculo') typeDef = 'BOOLEAN DEFAULT FALSE';
-                if (col === 'patente') typeDef = 'VARCHAR(30) NULL';
-                if (col === 'vehiculo_modelo') typeDef = 'VARCHAR(60) NULL';
-                if (col === 'tarjeta_credito') typeDef = 'VARCHAR(50) NULL';
-                await dbConn.query(`ALTER TABLE huesped ADD COLUMN ${col} ${typeDef}`);
+                await dbConn.query(`ALTER TABLE huesped ADD COLUMN ${col.name} ${col.type}`);
             }
         }
 
@@ -139,14 +146,32 @@ export async function initDatabase() {
         await dbConn.query(`
             CREATE TABLE IF NOT EXISTS reserva_data (
                 id_reserva_data INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-                inicio DATE,
-                fin DATE,
+                inicio DATETIME,
+                fin DATETIME,
+                adultos INT DEFAULT 1,
+                ninos INT DEFAULT 0,
+                precio_noche DECIMAL(10,2) DEFAULT 0.00,
+                precio_total DECIMAL(10,2) DEFAULT 0.00,
                 comida VARCHAR(50) DEFAULT 'Ninguno',
                 descuento INT DEFAULT 0,
                 creado_por_id INT,
                 FOREIGN KEY (creado_por_id) REFERENCES usuario(id_usuario)
             );
         `);
+
+        // Migraciones para reserva_data si ya existía con campos anteriores
+        const columnasResData = [
+            { name: 'adultos', type: 'INT DEFAULT 1' },
+            { name: 'ninos', type: 'INT DEFAULT 0' },
+            { name: 'precio_noche', type: 'DECIMAL(10,2) DEFAULT 0.00' },
+            { name: 'precio_total', type: 'DECIMAL(10,2) DEFAULT 0.00' }
+        ];
+        for (const col of columnasResData) {
+            const [check] = await dbConn.query(`SHOW COLUMNS FROM reserva_data LIKE ?`, [col.name]);
+            if (check.length === 0) {
+                await dbConn.query(`ALTER TABLE reserva_data ADD COLUMN ${col.name} ${col.type}`);
+            }
+        }
 
         // Crear tabla reserva
         await dbConn.query(`
@@ -155,6 +180,7 @@ export async function initDatabase() {
                 id_huesped INT,
                 nro_habitacion INT,
                 id_reserva_data INT,
+                vehiculo_patente VARCHAR(30) NULL,
                 creado_por_id INT,
                 fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (creado_por_id) REFERENCES usuario(id_usuario),
@@ -163,6 +189,30 @@ export async function initDatabase() {
                 FOREIGN KEY (id_reserva_data) REFERENCES reserva_data(id_reserva_data)
             );
         `);
+
+        // Migración de vehiculo_patente en reserva
+        const [checkPatReserva] = await dbConn.query(`SHOW COLUMNS FROM reserva LIKE 'vehiculo_patente'`);
+        if (checkPatReserva.length === 0) {
+            await dbConn.query(`ALTER TABLE reserva ADD COLUMN vehiculo_patente VARCHAR(30) NULL;`);
+        }
+
+        // Crear tabla intermedia reserva_acompanantes
+        await dbConn.query(`
+            CREATE TABLE IF NOT EXISTS reserva_acompanantes (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                id_reserva INT NOT NULL,
+                id_huesped INT NOT NULL,
+                fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (id_reserva) REFERENCES reserva(id_reserva) ON DELETE CASCADE,
+                FOREIGN KEY (id_huesped) REFERENCES huesped(id_huesped) ON DELETE CASCADE,
+                UNIQUE KEY uq_reserva_huesped (id_reserva, id_huesped)
+            );
+        `);
+
+        // Crear Vistas para compatibilidad con nomenclatura plural
+        await dbConn.query(`CREATE OR REPLACE VIEW huespedes AS SELECT * FROM huesped;`);
+        await dbConn.query(`CREATE OR REPLACE VIEW habitaciones AS SELECT * FROM habitacion;`);
+        await dbConn.query(`CREATE OR REPLACE VIEW reservas AS SELECT * FROM reserva;`);
 
         // Crear tabla pago
         await dbConn.query(`
