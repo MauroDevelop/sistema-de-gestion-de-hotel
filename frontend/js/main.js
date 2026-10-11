@@ -370,28 +370,39 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.closest('#btn-add-huesped')) {
             const select = document.getElementById('huesped-hab');
             api.getHabitaciones().then(habs => {
-                const libres = habs.filter(h => h.estado === 'LIBRE');
+                const libres = (habs || []).filter(h => h.estado === 'LIBRE');
                 if (libres.length === 0) {
                     select.innerHTML = '<option value="">No hay habitaciones libres para Check-in</option>';
                 } else {
-                    select.innerHTML = libres.map(h => `<option value="${h.id}">Hab. #${h.id} - ${h.tipo} ($${h.precio.toLocaleString('es-AR')}/noche)</option>`).join('');
+                    select.innerHTML = libres.map(h => `<option value="${h.id}" data-precio="${h.precio}">Hab. #${h.id} - ${h.tipo} ($${h.precio.toLocaleString('es-AR')}/noche)</option>`).join('');
                 }
+                calcularTarifasReserva();
+            }).catch(err => {
+                console.error('Error cargando habitaciones para check-in:', err);
             });
 
-            // Configuración dinámica del pre-llenado de fechas cronológicas
-            const hoy = new Date().toISOString().split('T')[0];
+            // Configuración dinámica del pre-llenado de fechas cronológicas (formato YYYY-MM-DDTHH:mm para datetime-local)
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const checkinDef = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+            const manana = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            const checkoutDef = `${manana.getFullYear()}-${pad(manana.getMonth() + 1)}-${pad(manana.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
             
             // Programación defensiva para el saneamiento visual del modal
             document.getElementById('error-add-huesped')?.classList.add('hidden');
-            document.getElementById('form-add-huesped').reset();
+            document.getElementById('form-add-huesped')?.reset();
             
-            document.getElementById('huesped-in').value = hoy;
-            document.getElementById('huesped-out').value = '';
-            document.getElementById('huesped-ocupantes').value = 1;
+            if (document.getElementById('huesped-checkin')) document.getElementById('huesped-checkin').value = checkinDef;
+            if (document.getElementById('huesped-checkout')) document.getElementById('huesped-checkout').value = checkoutDef;
+            if (document.getElementById('huesped-personas')) document.getElementById('huesped-personas').value = 1;
             
-            document.getElementById('check-vehiculo').checked = false;
-            document.getElementById('vehiculo-inputs-zone').classList.add('hidden');
-            document.getElementById('modal-add-huesped').classList.remove('hidden');
+            if (document.getElementById('reserva-patente')) document.getElementById('reserva-patente').value = '';
+            if (document.getElementById('reserva-modelo')) document.getElementById('reserva-modelo').value = '';
+            if (document.getElementById('lista-acompanantes')) document.getElementById('lista-acompanantes').innerHTML = '';
+            document.getElementById('zone-acompanantes')?.classList.add('hidden');
+            
+            setHuespedStep(1);
+            document.getElementById('modal-add-huesped')?.classList.remove('hidden');
         }
 
         // ABRIR MODAL DE CHECK-OUT PROFESIONAL
